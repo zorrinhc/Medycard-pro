@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Background: deep red, iOS-style rounded square -->
+  <rect width="1024" height="1024" rx="230" fill="#D92B2B"/>
+  <!-- Subtle gradient overlay -->
+  <rect width="1024" height="1024" rx="230" fill="url(#grad)"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.12)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Card body -->
+  <rect x="148" y="310" width="728" height="460" rx="56" fill="white"/>
+
+  <!-- Card stripe at top -->
+  <rect x="148" y="310" width="728" height="110" rx="56" fill="#1e3a5f"/>
+  <rect x="148" y="360" width="728" height="60" fill="#1e3a5f"/>
+
+  <!-- Chip -->
+  <rect x="220" y="460" width="90" height="68" rx="10" fill="#F5C842"/>
+  <line x1="220" y1="480" x2="310" y2="480" stroke="#C8A020" stroke-width="3"/>
+  <line x1="220" y1="495" x2="310" y2="495" stroke="#C8A020" stroke-width="3"/>
+  <line x1="220" y1="510" x2="310" y2="510" stroke="#C8A020" stroke-width="3"/>
+  <line x1="248" y1="460" x2="248" y2="528" stroke="#C8A020" stroke-width="3"/>
+  <line x1="265" y1="460" x2="265" y2="528" stroke="#C8A020" stroke-width="3"/>
+  <line x1="282" y1="460" x2="282" y2="528" stroke="#C8A020" stroke-width="3"/>
+
+  <!-- Card number dots -->
+  <circle cx="350" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="390" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="430" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="470" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="530" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="570" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="610" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="650" cy="600" r="14" fill="#c0ccd8"/>
+  <circle cx="710" cy="600" r="14" fill="#1e3a5f"/>
+  <circle cx="750" cy="600" r="14" fill="#1e3a5f"/>
+  <circle cx="790" cy="600" r="14" fill="#1e3a5f"/>
+  <circle cx="830" cy="600" r="14" fill="#1e3a5f"/>
+
+  <!-- Red cross badge — bottom right corner of card -->
+  <circle cx="790" cy="470" r="70" fill="#D92B2B"/>
+  <!-- Cross vertical -->
+  <rect x="772" y="430" width="36" height="80" rx="8" fill="white"/>
+  <!-- Cross horizontal -->
+  <rect x="750" y="452" width="80" height="36" rx="8" fill="white"/>
+</svg>
