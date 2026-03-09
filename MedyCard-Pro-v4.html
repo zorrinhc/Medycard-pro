@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="MedyCard Pro"/>
+<title>MedyCard Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body,#app{height:100%;overflow:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;}
+button{cursor:pointer;font-family:inherit;-webkit-appearance:none;}
+input,textarea{font-family:inherit;}
+a{text-decoration:none;color:inherit;}
+.scr{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes bounce{0%,100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(.8,0,1,1)}50%{transform:translateY(0);animation-timing-function:cubic-bezier(0,0,.2,1)}}
+.pulse{animation:pulse 2s infinite;}
+.bounce{animation:bounce .6s infinite;}
+.inp{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px 14px;font-size:14px;outline:none;color:#1c1c1e;}
+.inp:focus{border-color:#007AFF;}
+textarea.inp{resize:none;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+var LS={
+  get:function(k,d){try{var v=localStorage.getItem("mc_"+k);return v!==null?JSON.parse(v):d;}catch(e){return d;}},
+  set:function(k,v){try{localStorage.setItem("mc_"+k,JSON.stringify(v));}catch(e){}}
+};
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+function hashPIN(p){var h=0;for(var i=0;i<p.length;i++)h=(Math.imul(31,h)+p.charCodeAt(i))|0;return"mc_"+Math.abs(h).toString(36)+p.length;}
+var AUTH={
+  hasPin:function(){return!!localStorage.getItem("mc_pin");},
+  save:function(p){localStorage.setItem("mc_pin",hashPIN(p));},
+  check:function(p){return localStorage.getItem("mc_pin")===hashPIN(p);}
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+var S={
+  screen:"lock", // lock | setup | emergency | app
+  page:"emergency",
+  sm:LS.get("sm",false),
+  travel:LS.get("travel",false),
+  medications:LS.get("meds",[{id:"1",name:"Lisinopril",dosage:"10mg",frequency:"Once daily",status:"safe"}]),
+  allergies:LS.get("allergies",["Penicillin","Peanuts"]),
+  bloodType:LS.get("bt","O Positive"),
+  history:LS.get("history","No major surgeries. Controlled hypertension."),
+  contacts:LS.get("contacts",[{id:"1",name:"Jane Doe",rel:"Wife",phone:"+1 (555) 012-3456"},{id:"2",name:"Dr. Smith",rel:"Primary Physician",phone:"+1 (555) 987-6543"}]),
+  apiKey:LS.get("apiKey",""),
+  chatMsgs:{emergency:[],vault:[],check:[],family:[],travel:[]},
+  chatInput:"",
+  chatLoading:false,
+  pinEntry:"",
+  pinStep:1,
+  pinFirst:"",
+  pinError:"",
+  isUnmasked:false,
+  checkMeds:[],
+  checkInput:"",
+  newMed:{name:"",dosage:"",freq:""},
+  newAllergy:"",
+  isChatOpen:false,
+  showApiKey:false
+};
+
+// Set initial screen
+if(!AUTH.hasPin()) S.screen="setup";
+else S.screen="lock";
+
+// ── DRUG CHECK ───────────────────────────────────────────────────────────────
+var DRUG_PAIRS=[["lisinopril","aspirin"],["warfarin","ibuprofen"],["metformin","contrast dye"],["ssri","tramadol"],["warfarin","aspirin"]];
+function checkDrugs(meds){
+  if(meds.length<2)return"none";
+  var l=meds.map(function(m){return m.toLowerCase();});
+  for(var i=0;i<DRUG_PAIRS.length;i++){
+    var p=DRUG_PAIRS[i];
+    if(l.indexOf(p[0])>=0&&l.indexOf(p[1])>=0)return"flag";
+  }
+  return"safe";
+}
+
+// ── AI ───────────────────────────────────────────────────────────────────────
+var PROMPTS={
+  emergency:"You are Medy, a health information companion in MedyCard Pro, designed by an RN with 30 years experience. If anyone describes chest pain, difficulty breathing, stroke symptoms, severe bleeding, or life-threatening emergency — first sentence must be 'Call 911 immediately.' NEVER diagnose. NEVER recommend prescription medications. Always end with recommending a doctor or 911 if urgent. Max 3-4 sentences.",
+  vault:"You are Medy in MedyCard Pro. General medication info only. NEVER advise changing a prescription. Always end with 'Your pharmacist is the best resource.' Max 2-3 sentences.",
+  check:"You are Medy in MedyCard Pro. General medication awareness only. Frame as public awareness, never clinical advice. Always end with 'Please speak with your pharmacist or doctor.' Max 3 sentences.",
+  family:"You are Medy in MedyCard Pro. General caregiving tips only. Recommend professional medical guidance. 2-3 sentences.",
+  travel:"You are Medy in MedyCard Pro. General travel health awareness only. For emergencies, first recommend local emergency services. Always recommend a travel medicine clinic before international travel. 3-4 sentences."
+};
+
+function addChat(ctx,role,content){
+  if(!S.chatMsgs[ctx])S.chatMsgs[ctx]=[];
+  S.chatMsgs[ctx].push({id:Date.now().toString(),role:role,content:content});
+}
+
+async function askMedy(ctx){
+  var key=S.apiKey;
+  if(!key){addChat(ctx,"ai","Please add your Anthropic API key in Settings (⚙️) to use Medy AI.");S.chatLoading=false;render();return;}
+  var history=S.chatMsgs[ctx].map(function(m){return{role:m.role==="user"?"user":"assistant",content:m.content};});
+  try{
+    var res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,system:PROMPTS[ctx]||PROMPTS.emergency,messages:history})
+    });
+    var data=await res.json();
+    addChat(ctx,"ai",(data.content&&data.content[0])?data.content[0].text:"Sorry, I couldn't process that.");
+  }catch(e){
+    addChat(ctx,"ai","Couldn't reach Medy AI. Please check your API key in Settings.");
+  }
+  S.chatLoading=false;
+  render();
+}
+
+function sendChat(ctx){
+  if(!S.chatInput.trim()||S.chatLoading)return;
+  addChat(ctx,"user",S.chatInput);
+  S.chatInput="";
+  S.chatLoading=true;
+  render();
+  askMedy(ctx);
+}
+
+// ── DOM HELPERS ──────────────────────────────────────────────────────────────
+function el(tag,props){
+  var e=document.createElement(tag);
+  if(props){
+    Object.keys(props).forEach(function(k){
+      if(k==="style")e.style.cssText=props[k];
+      else if(k==="class")e.className=props[k];
+      else if(k==="html")e.innerHTML=props[k];
+      else if(k==="text")e.textContent=props[k];
+      else if(k.indexOf("on")===0)e.addEventListener(k.slice(2).toLowerCase(),props[k]);
+      else e.setAttribute(k,props[k]);
+    });
+  }
+  return e;
+}
+function D(style){var e=document.createElement("div");if(style)e.style.cssText=style;return e;}
+function ap(parent){for(var i=1;i<arguments.length;i++)if(arguments[i])parent.appendChild(arguments[i]);return parent;}
+
+// ── SVG ICONS ────────────────────────────────────────────────────────────────
+var SVG={
+  heart:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  steth:'<path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  warn:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+  credit:'<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  msg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  history:'<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
+  activity:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  alert:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  plane:'<path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2c-.5.1-.9.5-.9 1L1 8.5c0 .6.4 1 1 1L7 10l-1.5 2.5L4 14.5c0 .5.5.9 1 .9H7l1.5 1.5L9 19c.1.5.5 1 1 1l1.2-.1c.5-.1.8-.5.8-1z"/>',
+  nfc:'<path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/>'
+};
+function svg(name,size,fill,stroke){
+  var s=el("svg");
+  s.setAttribute("width",size||16);s.setAttribute("height",size||16);s.setAttribute("viewBox","0 0 24 24");
+  s.setAttribute("fill",fill||"none");
+  s.setAttribute("stroke",stroke||"currentColor");
+  s.setAttribute("stroke-width","2");
+  s.innerHTML=SVG[name]||"";
+  return s;
+}
+
+// ── PIN DOTS ─────────────────────────────────────────────────────────────────
+function pinDots(filled){
+  var row=D("display:flex;justify-content:center;gap:12px;margin-bottom:24px;");
+  for(var i=0;i<6;i++){
+    var d=D("width:16px;height:16px;border-radius:50%;transition:background .15s;background:"+(i<filled?"white":"rgba(255,255,255,.2)")+";");
+    ap(row,d);
+  }
+  return row;
+}
+
+// ── KEYPAD ───────────────────────────────────────────────────────────────────
+function keypad(onDigit,onBack){
+  var grid=D("display:grid;grid-template-columns:repeat(3,1fr);gap:10px;");
+  [1,2,3,4,5,6,7,8,9].forEach(function(k){
+    var b=el("button",{style:"height:52px;border-radius:16px;font-size:20px;font-weight:900;color:white;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);",text:String(k)});
+    b.addEventListener("click",function(){onDigit(String(k));});
+    ap(grid,b);
+  });
+  ap(grid,D()); // empty cell
+  var z=el("button",{style:"height:52px;border-radius:16px;font-size:20px;font-weight:900;color:white;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);",text:"0"});
+  z.addEventListener("click",function(){onDigit("0");});
+  var bk=el("button",{style:"height:52px;border-radius:16px;font-size:20px;font-weight:900;color:white;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);",text:"⌫"});
+  bk.addEventListener("click",onBack);
+  ap(grid,z,bk);
+  return grid;
+}
+
+// ── APP LOGO ─────────────────────────────────────────────────────────────────
+function appLogo(){
+  var wrap=D("display:flex;flex-direction:column;align-items:center;");
+  var icon=D("width:64px;height:64px;background:#EF4444;border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 8px 24px rgba(239,68,68,.35);");
+  icon.appendChild(svg("credit",32,"none","white"));
+  var title=el("h1",{style:"color:white;font-size:28px;font-weight:900;margin-bottom:4px;",text:"MedyCard Pro"});
+  ap(wrap,icon,title);
+  return wrap;
+}
+
+// ── EMERGENCY BAR (on lock screen) ───────────────────────────────────────────
+function emergencyBar(){
+  // Single button — no nested divs to intercept taps
+  var btn=document.createElement("button");
+  btn.style.cssText="display:block;width:calc(100% - 32px);margin:16px 16px 0;border-radius:16px;background:#FF3B30;border:none;padding:0;box-shadow:0 4px 20px rgba(255,59,48,.5);flex-shrink:0;cursor:pointer;text-align:left;-webkit-appearance:none;";
+  var line1=document.createElement("p");
+  line1.style.cssText="color:white;font-size:17px;font-weight:900;margin-bottom:3px;";
+  line1.textContent="\u{1F6A8} Emergency Medical ID";
+  var line2=document.createElement("p");
+  line2.style.cssText="color:rgba(255,255,255,.8);font-size:12px;font-weight:600;";
+  line2.textContent="Tap for blood type, allergies & medications — no PIN needed";
+  var inner=document.createElement("div");
+  inner.style.cssText="padding:16px 18px;";
+  inner.appendChild(line1);
+  inner.appendChild(line2);
+  btn.appendChild(inner);
+  btn.addEventListener("click", function(){ S.screen="emergency"; render(); });
+  return btn;
+}
+
+// ── SCREENS ──────────────────────────────────────────────────────────────────
+
+function renderSetup(){
+  var root=D("position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a,#1e3a5f,#1d4ed8);");
+  var topSpacerS=D("height:env(safe-area-inset-top,20px);flex-shrink:0;");
+  ap(root,topSpacerS);
+  ap(root,emergencyBar());
+  var centerSetup=D("flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;");
+  ap(centerSetup,appLogo());
+  var sub=el("p",{style:"color:#93C5FD;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:32px;margin-top:4px;",text:"Set Up Your Security PIN"});
+  ap(centerSetup,sub);
+  var box=D("background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:28px;width:320px;text-align:center;");
+  var lbl=el("p",{style:"color:white;font-weight:700;font-size:15px;margin-bottom:4px;"});
+  var slbl=el("p",{style:"color:#93C5FD;font-size:13px;margin-bottom:20px;"});
+  var errEl=el("p",{style:"color:#FCA5A5;font-size:13px;font-weight:600;margin-bottom:12px;display:none;"});
+  function refresh(){
+    lbl.textContent=S.pinStep===1?"Create a 6-digit PIN":"Confirm your PIN";
+    slbl.textContent=S.pinStep===1?"You'll use this to unlock MedyCard Pro":"Enter the same PIN again";
+    errEl.style.display=S.pinError?"block":"none";
+    errEl.textContent=S.pinError||"";
+  }
+  refresh();
+  var dotsWrap=D();
+  function refreshDots(){dotsWrap.innerHTML="";ap(dotsWrap,pinDots(S.pinEntry.length));}
+  refreshDots();
+  var kp=keypad(function(d){
+    S.pinEntry+=d;
+    if(S.pinEntry.length===6){
+      if(S.pinStep===1){S.pinFirst=S.pinEntry;S.pinStep=2;S.pinEntry="";}
+      else if(S.pinEntry===S.pinFirst){AUTH.save(S.pinEntry);S.screen="app";S.pinEntry="";S.pinStep=1;S.pinFirst="";S.pinError="";render();return;}
+      else{S.pinError="PINs don't match. Try again.";S.pinStep=1;S.pinEntry="";S.pinFirst="";}
+    }
+    refresh();refreshDots();
+  },function(){S.pinEntry=S.pinEntry.slice(0,-1);refreshDots();});
+  ap(box,errEl,lbl,slbl,dotsWrap,kp);
+  ap(centerSetup,box);
+  ap(root,centerSetup);
+  document.getElementById("app").innerHTML="";
+  document.getElementById("app").appendChild(root);
+}
+
+function renderLock(){
+  var root=D("position:fixed;inset:0;display:flex;flex-direction:column;background:linear-gradient(135deg,#0f172a,#1e3a5f,#1d4ed8);");
+
+  // Emergency bar at top (below status bar)
+  var topSpacer=D("height:env(safe-area-inset-top,20px);flex-shrink:0;");
+  ap(root,topSpacer);
+  ap(root,emergencyBar());
+
+  // PIN area
+  var center=D("flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;");
+  ap(center,appLogo());
+  var sub=el("p",{style:"color:#93C5FD;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:28px;margin-top:4px;",text:"Enter PIN to Unlock"});
+  ap(center,sub);
+
+  var box=D("background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:28px;width:320px;text-align:center;");
+  var errEl=el("p",{style:"color:#FCA5A5;font-size:13px;font-weight:600;margin-bottom:12px;"+(S.pinError?"":"display:none;"),text:S.pinError||""});
+  var dotsWrap=D();
+  function refreshDots(){dotsWrap.innerHTML="";ap(dotsWrap,pinDots(S.pinEntry.length));}
+  refreshDots();
+  var kp=keypad(function(d){
+    S.pinEntry+=d;
+    if(S.pinEntry.length===6){
+      if(AUTH.check(S.pinEntry)){S.screen="app";S.pinEntry="";S.pinError="";render();return;}
+      else{S.pinError="Incorrect PIN. Try again.";S.pinEntry="";}
+    }
+    errEl.style.display=S.pinError?"block":"none";
+    errEl.textContent=S.pinError||"";
+    refreshDots();
+  },function(){
+    S.pinEntry=S.pinEntry.slice(0,-1);
+    S.pinError="";
+    errEl.style.display="none";
+    refreshDots();
+  });
+  ap(box,errEl,dotsWrap,kp);
+  ap(center,box);
+  var note=el("p",{style:"color:rgba(147,197,253,.3);font-size:11px;margin-top:16px;",text:"Protected by local encryption · Auto-locks after 5 min"});
+  ap(center,note);
+  ap(root,center);
+
+  document.getElementById("app").innerHTML="";
+  document.getElementById("app").appendChild(root);
+}
+
+function renderEmergency(){
+  var root=D("position:fixed;inset:0;background:#0a0a0a;overflow-y:auto;-webkit-overflow-scrolling:touch;");
+
+  // Header
+  var hdr=D("position:sticky;top:0;z-index:10;background:#FF3B30;padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px;");
+  var hdrRow=D("display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;");
+  var hdrLeft=D("display:flex;align-items:center;gap:8px;");
+  ap(hdrLeft,svg("warn",22,"none","white"));
+  hdrLeft.appendChild(el("span",{style:"color:white;font-size:20px;font-weight:900;",text:"MEDICAL ID"}));
+  var closeBtn=el("button",{style:"background:rgba(255,255,255,.2);color:white;border:none;padding:7px 14px;border-radius:10px;font-weight:700;font-size:13px;",text:"✕ Close"});
+  closeBtn.addEventListener("click",function(){S.screen="lock";render();});
+  ap(hdrRow,hdrLeft,closeBtn);
+  ap(hdr,hdrRow);
+  var hdrSub=el("p",{style:"color:rgba(255,200,200,.9);font-size:11px;font-weight:600;",text:"Emergency access — no PIN required. Vault remains locked."});
+  ap(hdr,hdrSub);
+  ap(root,hdr);
+
+  var body=D("padding:20px;");
+
+  // No data warning
+  var hasData=S.medications.length||S.allergies.length||(S.bloodType&&S.bloodType!=="O Positive"&&S.bloodType!=="");
+  if(!hasData){
+    var noData=D("background:#2A1515;border:1px solid rgba(239,68,68,.3);border-radius:14px;padding:16px;text-align:center;margin-bottom:14px;");
+    noData.innerHTML='<p style="font-size:22px;margin-bottom:6px">⚠️</p><p style="color:#FCA5A5;font-weight:900;font-size:14px;margin-bottom:5px">No Medical Data on File</p><p style="color:rgba(255,255,255,.55);font-size:12px;line-height:1.6">The owner has not yet added medical information. Unlock the app to add blood type, allergies and medications.</p>';
+    ap(body,noData);
+  }
+
+  // Critical card
+  var crit=D("border-radius:16px;overflow:hidden;border:2px solid rgba(239,68,68,.4);margin-bottom:14px;");
+  crit.innerHTML='<div style="background:#FF3B30;padding:8px 16px;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span style="color:white;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.1em">Critical Information</span></div>';
+  var cb=D("background:#1a1a1a;padding:16px;");
+  cb.innerHTML='<div style="margin-bottom:14px"><p style="color:#F87171;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Blood Type</p><p style="color:white;font-size:28px;font-weight:900;">'+(S.bloodType||"Not entered")+'</p></div>';
+  var algH='<div style="margin-bottom:14px"><p style="color:#F87171;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Allergies</p>';
+  if(S.allergies.length)algH+='<div style="display:flex;flex-wrap:wrap;gap:6px">'+S.allergies.map(function(a){return'<span style="background:#FF3B30;color:white;padding:5px 12px;border-radius:50px;font-size:13px;font-weight:700">'+a+'</span>';}).join("")+'</div>';
+  else algH+='<p style="color:#6b7280;font-size:13px">None listed</p>';
+  algH+='</div>';
+  var medsH='<div><p style="color:#F87171;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Medications</p>';
+  if(S.medications.length)medsH+='<div style="display:flex;flex-direction:column;gap:6px">'+S.medications.map(function(m){return'<div style="background:#2a2a2a;padding:8px 12px;border-radius:10px;display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;background:#FCD34D;border-radius:50%;flex-shrink:0"></div><span style="color:white;font-size:13px;font-weight:600">'+m.name+' '+m.dosage+' — '+m.frequency+'</span></div>';}).join("")+'</div>';
+  else medsH+='<p style="color:#6b7280;font-size:13px">None listed</p>';
+  medsH+='</div>';
+  cb.innerHTML+=algH+medsH;
+  ap(crit,cb);ap(body,crit);
+
+  // Call 911
+  var call=el("a",{href:"tel:911",style:"display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;border-radius:16px;background:#FF3B30;color:white;font-size:20px;font-weight:900;margin-bottom:14px;box-shadow:0 4px 24px rgba(255,59,48,.5);"});
+  call.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> CALL 911';
+  ap(body,call);
+
+  // Contacts
+  if(S.contacts.length){
+    var cc=D("border-radius:14px;overflow:hidden;border:1px solid #374151;margin-bottom:14px;");
+    cc.innerHTML='<div style="background:#1a1a1a;padding:10px 16px;"><p style="color:#D1D5DB;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em">Emergency Contacts</p></div>';
+    S.contacts.forEach(function(c){
+      var row=D("background:#141414;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1f2937;");
+      row.innerHTML='<div><p style="color:white;font-weight:700;font-size:14px">'+c.name+'</p><p style="color:#6b7280;font-size:12px">'+c.rel+'</p></div>';
+      var cBtn=el("a",{href:"tel:"+c.phone,style:"display:flex;align-items:center;gap:6px;background:#34C759;color:white;padding:8px 16px;border-radius:12px;font-weight:700;font-size:13px;"});
+      cBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Call';
+      ap(row,cBtn);ap(cc,row);
+    });
+    ap(body,cc);
+  }
+
+  ap(root,body);
+  document.getElementById("app").innerHTML="";
+  document.getElementById("app").appendChild(root);
+}
+
+// ── MAIN APP ─────────────────────────────────────────────────────────────────
+
+function secBadge(){
+  var row=D("display:flex;align-items:center;justify-content:space-between;");
+  var left=D("display:flex;align-items:center;gap:5px;padding:3px 8px;border-radius:50px;background:linear-gradient(90deg,#00C851,#007AFF);");
+  left.innerHTML='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span style="color:white;font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;">AES-256 · HIPAA Safe</span>';
+  var right=D("display:flex;align-items:center;gap:5px;");
+  var dot=D("width:7px;height:7px;background:#34D399;border-radius:50%;");
+  dot.className="pulse";
+  right.appendChild(dot);
+  right.appendChild(el("span",{style:"font-size:11px;font-weight:700;color:#059669;",text:"Secure"}));
+  ap(row,left,right);
+  return row;
+}
+
+function modeBtns(){
+  var row=D("display:flex;gap:8px;margin-top:8px;");
+  var smOn=S.sm,trOn=S.travel;
+  var smB=el("button",{style:"flex:1;padding:7px;border-radius:10px;font-size:11px;font-weight:800;border:2px solid "+(smOn?"#FFD600":"rgba(255,214,0,.35)")+";background:"+(smOn?"#FFD600":"rgba(255,214,0,.08)")+";color:"+(smOn?"#000":"#B8860B")+";"});
+  smB.textContent="👴 Senior "+(smOn?"ON":"OFF");
+  smB.addEventListener("click",function(){S.sm=!S.sm;LS.set("sm",S.sm);render();});
+  var trB=el("button",{style:"flex:1;padding:7px;border-radius:10px;font-size:11px;font-weight:800;border:2px solid "+(trOn?"#007AFF":"rgba(0,122,255,.3)")+";background:"+(trOn?"#007AFF":"rgba(0,122,255,.08)")+";color:"+(trOn?"white":"#007AFF")+";"});
+  trB.textContent="✈️ Travel "+(trOn?"ON":"OFF");
+  trB.addEventListener("click",function(){S.travel=!S.travel;LS.set("travel",S.travel);render();});
+  ap(row,smB,trB);
+  return row;
+}
+
+function sectionCard(title,color,iconName,content){
+  var wrap=D("margin-bottom:16px;");
+  var hdr=D("display:flex;align-items:center;gap:8px;margin-bottom:10px;");
+  var ic=D("width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:"+color+";");
+  ap(ic,svg(iconName,14,"none","white"));
+  ap(hdr,ic,el("h3",{style:"font-weight:900;font-size:15px;color:#1c1c1e;",text:title}));
+  var box=D("background:white;border-radius:16px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #e5e7eb;");
+  ap(box,content);
+  ap(wrap,hdr,box);
+  return wrap;
+}
+
+function contactsList(){
+  var wrap=D();
+  S.contacts.forEach(function(c){
+    var row=D("display:flex;align-items:center;gap:12px;margin-bottom:12px;");
+    var av=D("width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#60A5FA,#1D4ED8);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:900;flex-shrink:0;");
+    av.textContent=c.name[0];
+    var info=D("flex:1;");
+    info.innerHTML='<p style="font-weight:700;color:#1c1c1e;font-size:14px">'+c.name+'</p><p style="color:#6b7280;font-size:11px">'+c.rel+' · '+c.phone+'</p>';
+    var btns=D("display:flex;gap:6px;");
+    var cb=el("a",{href:"tel:"+c.phone,style:"width:36px;height:36px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;"});
+    ap(cb,svg("phone",14,"white","none"));
+    var sb=el("button",{style:"width:36px;height:36px;border-radius:50%;background:#EFF6FF;border:none;display:flex;align-items:center;justify-content:center;"});
+    ap(sb,svg("share",14,"none","#3B82F6"));
+    ap(btns,cb,sb);ap(row,av,info,btns);ap(wrap,row);
+  });
+  return wrap;
+}
+
+function chatPanel(ctx){
+  var msgs=S.chatMsgs[ctx]||[];
+  var wrap=D("display:flex;flex-direction:column;background:white;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06);height:340px;");
+
+  var hdr=D("background:linear-gradient(135deg,#0f172a,#1d4ed8);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;");
+  hdr.innerHTML='<div style="width:28px;height:28px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="#F87171"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div style="flex:1"><p style="color:white;font-weight:700;font-size:13px">Medy AI</p><p style="color:#93C5FD;font-size:9px">RN-guided health companion</p></div><div style="padding:3px 7px;border-radius:50px;background:rgba(251,191,36,.2);"><span style="color:#FCD34D;font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.06em">Info Only</span></div>';
+
+  var disc=D("padding:6px 12px;background:linear-gradient(90deg,#fff7ed,#fef3c7);border-bottom:1px solid #fed7aa;flex-shrink:0;");
+  disc.innerHTML='<p style="font-size:9px;font-weight:600;color:#92400E"><strong>Medy AI</strong> provides general health information only. <a href="tel:911" style="color:#DC2626;font-weight:900;">Call 911 in an emergency.</a></p>';
+
+  var msgArea=D("scr flex:1;padding:10px;background:#f8fafc;display:flex;flex-direction:column;gap:7px;");
+  msgArea.className="scr";
+  msgArea.style.cssText="flex:1;padding:10px;background:#f8fafc;display:flex;flex-direction:column;gap:7px;overflow-y:auto;-webkit-overflow-scrolling:touch;";
+
+  if(!msgs.length){
+    msgArea.innerHTML='<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px"><div style="width:44px;height:44px;background:#EFF6FF;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:10px"><svg width="20" height="20" viewBox="0 0 24 24" fill="#60A5FA"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><p style="font-weight:700;color:#1e293b;font-size:13px;margin-bottom:4px">Your Health Companion</p><p style="color:#94A3B8;font-size:11px;line-height:1.55">Ask about medications, travel health, or wellness.</p></div>';
+  } else {
+    msgs.forEach(function(m){
+      var row=D("display:flex;align-items:flex-end;gap:6px;justify-content:"+(m.role==="user"?"flex-end":"flex-start")+";");
+      if(m.role==="ai"){
+        var av=D("width:24px;height:24px;background:#2563EB;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-bottom:2px;");
+        av.innerHTML='<svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+        ap(row,av);
+      }
+      var bub=D(m.role==="user"?"background:#007AFF;color:white;border-radius:14px 14px 4px 14px;padding:9px 13px;max-width:85%;font-size:13px;line-height:1.5;":"background:white;color:#1c1c1e;border-radius:14px 14px 14px 4px;padding:9px 13px;max-width:85%;font-size:13px;line-height:1.5;box-shadow:0 1px 4px rgba(0,0,0,.08);");
+      bub.textContent=m.content;
+      ap(row,bub);ap(msgArea,row);
+    });
+  }
+  if(S.chatLoading){
+    var ld=D("display:flex;align-items:center;gap:6px;");
+    var ldAv=D("width:24px;height:24px;background:#2563EB;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;");
+    ldAv.innerHTML='<svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+    var dots=D("display:flex;gap:3px;padding:8px 12px;background:white;border-radius:14px;");
+    for(var di=0;di<3;di++){var d=D("width:6px;height:6px;background:#CBD5E1;border-radius:50%;");d.className="bounce";d.style.animationDelay=(di*0.2)+"s";ap(dots,d);}
+    ap(ld,ldAv,dots);ap(msgArea,ld);
+  }
+  setTimeout(function(){msgArea.scrollTop=msgArea.scrollHeight;},20);
+
+  var footer=D("display:flex;gap:7px;padding:8px 10px;border-top:1px solid #e5e7eb;background:white;flex-shrink:0;");
+  var inp=el("input",{type:"text",style:"flex:1;background:#F1F5F9;border:none;border-radius:50px;padding:8px 14px;font-size:12px;outline:none;",placeholder:"Ask Medy anything…"});
+  inp.value=S.chatInput;
+  inp.addEventListener("input",function(){S.chatInput=this.value;});
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")sendChat(ctx);});
+  var sendB=el("button",{style:"width:36px;height:36px;border-radius:50%;background:#007AFF;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;"});
+  ap(sendB,svg("send",14,"none","white"));
+  sendB.addEventListener("click",function(){sendChat(ctx);});
+  ap(footer,inp,sendB);
+
+  ap(wrap,hdr,disc,msgArea,footer);
+  return wrap;
+}
+
+// ── PAGE: EMERGENCY ──────────────────────────────────────────────────────────
+function pageEmergency(){
+  var c=D();
+  // Main card
+  var card=D("border-radius:24px;overflow:hidden;background:linear-gradient(135deg,#0f172a,#1e3a5f,#1d4ed8);box-shadow:0 8px 28px rgba(0,0,0,.22);margin-bottom:14px;");
+  var cp=D("padding:20px;");
+  cp.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;background:#EF4444;border-radius:12px;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><p style="color:white;font-weight:900;font-size:16px">MedyCard Pro</p><p style="color:#93C5FD;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em">Active Medical Guardian</p></div></div><div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;background:'+(S.isUnmasked?"rgba(52,197,89,.2)":"rgba(255,255,255,.1)")+'"><div style="width:6px;height:6px;border-radius:50%;background:'+(S.isUnmasked?"#34C759":"rgba(255,255,255,.4)")+'"'+(S.isUnmasked?' class="pulse"':"")+'/><span style="color:'+(S.isUnmasked?"#86EFAC":"rgba(255,255,255,.6)")+';font-size:9px;font-weight:700">'+(S.isUnmasked?"Verified":"Locked")+'</span></div></div>';
+  var info=D("display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;");
+  [{label:"Blood Type",val:S.bloodType},{label:"Allergies",val:S.allergies.join(", ")||"None"},{label:"Medications",val:S.medications.map(function(m){return m.name+" "+m.dosage;}).join(", ")||"None"}].forEach(function(it){
+    var g=D();
+    g.innerHTML='<p style="color:#93C5FD;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">'+it.label+'</p><p style="color:white;font-size:13px;font-weight:600;transition:filter .3s;'+(S.isUnmasked?"":"filter:blur(6px);opacity:.4;")+'">'+it.val+'</p>';
+    ap(info,g);
+  });
+  ap(cp,info);
+  var btns=D("display:flex;gap:8px;");
+  var call=el("a",{href:"tel:911",style:"flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:12px;background:rgba(239,68,68,.85);color:white;font-size:14px;font-weight:900;"});
+  call.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 3h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 10.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Call 911';
+  var nfc=el("button",{style:"display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.1);color:white;border:none;font-size:13px;font-weight:700;",text:"📡 NFC"});
+  ap(btns,call,nfc);
+  if(window.innerWidth<768){
+    var medyBtn=el("button",{style:"display:flex;align-items:center;gap:4px;padding:10px;border-radius:12px;background:linear-gradient(135deg,#007AFF,#5856D6);color:white;border:none;font-size:11px;font-weight:900;"});
+    medyBtn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Medy AI';
+    medyBtn.addEventListener("click",function(){S.isChatOpen=true;render();});
+    ap(btns,medyBtn);
+  }
+  ap(cp,btns);ap(card,cp);ap(c,card);
+
+  var paraBtn=el("button",{style:"display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 20px;border-radius:16px;background:#FF3B30;color:white;border:none;font-size:14px;font-weight:900;margin-bottom:14px;box-shadow:0 4px 16px rgba(255,59,48,.35);"});
+  paraBtn.innerHTML='<div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>Paramedic Instant Access</div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
+  paraBtn.addEventListener("click",function(){S.isUnmasked=true;render();});
+  ap(c,paraBtn);
+
+  var disc=D("display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:16px;background:linear-gradient(90deg,#fff7ed,#fef3c7);border:1px solid #fed7aa;margin-bottom:14px;");
+  disc.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><p style="font-size:10px;color:#92400E;font-weight:600;line-height:1.55"><strong>Medy AI</strong> provides general health information only. Not a substitute for professional medical advice. <a href="tel:911" style="color:#DC2626;font-weight:900;">Always call 911 in an emergency.</a></p>';
+  ap(c,disc);
+
+  if(S.travel){
+    var tw=D("border-radius:16px;overflow:hidden;margin-bottom:14px;");
+    tw.innerHTML='<div style="background:linear-gradient(90deg,#0f172a,#1d4ed8);padding:10px 16px;display:flex;align-items:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span style="color:white;font-weight:900;font-size:13px">Travel Shield — Emergency Numbers</span></div><div style="background:white;">'+[["🇺🇸 USA","911"],["🇬🇧 UK","999"],["🇪🇺 Europe","112"],["🇯🇵 Japan","119"],["🇦🇺 Australia","000"]].map(function(r){return'<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #f1f5f9"><span style="color:#374151;font-size:13px">'+r[0]+'</span><a href="tel:'+r[1]+'" style="color:#007AFF;font-size:16px;font-weight:900">'+r[1]+'</a></div>';}).join("")+'</div>';
+    ap(c,tw);
+  }
+  ap(c,sectionCard("Emergency Contacts","#34C759","phone",contactsList()));
+  return c;
+}
+
+// ── PAGE: VAULT ──────────────────────────────────────────────────────────────
+function pageVault(){
+  var c=D();
+  var badge=D("display:flex;align-items:center;gap:12px;padding:14px 16px;background:#ECFDF5;border-radius:16px;border:1px solid #D1FAE5;margin-bottom:16px;");
+  badge.innerHTML='<div style="width:36px;height:36px;background:#10B981;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div><p style="font-weight:900;color:#065F46;font-size:14px">End-to-End Encrypted</p><p style="color:#059669;font-size:11px">Saved locally and encrypted on this device</p></div>';
+  ap(c,badge);
+
+  // Medications
+  var medContent=D();
+  var formRow=D("display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;");
+  ["name","dosage","freq"].forEach(function(f){
+    var labels={name:"Medication",dosage:"Dosage",freq:"Frequency"};
+    var ph={name:"e.g. Lisinopril",dosage:"e.g. 10mg",freq:"e.g. Once daily"};
+    var col=D();
+    col.innerHTML='<label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px">'+labels[f]+'</label>';
+    var inp=el("input",{type:"text","class":"inp",placeholder:ph[f]});
+    inp.value=S.newMed[f];
+    inp.addEventListener("input",function(){S.newMed[f]=this.value;});
+    ap(col,inp);ap(formRow,col);
+  });
+  ap(medContent,formRow);
+  var addMedBtn=el("button",{style:"width:100%;padding:10px;border-radius:12px;background:#007AFF;color:white;border:none;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:12px;"});
+  addMedBtn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Medication';
+  addMedBtn.addEventListener("click",function(){
+    if(!S.newMed.name)return;
+    var allNames=S.medications.map(function(m){return m.name;}).concat([S.newMed.name]);
+    var status=checkDrugs(allNames)==="flag"?"caution":"safe";
+    S.medications=S.medications.concat([{id:Date.now().toString(),name:S.newMed.name,dosage:S.newMed.dosage,frequency:S.newMed.freq,status:status}]);
+    LS.set("meds",S.medications);S.newMed={name:"",dosage:"",freq:""};render();
+  });
+  ap(medContent,addMedBtn);
+  var medList=D("display:flex;flex-direction:column;gap:7px;");
+  if(!S.medications.length){medList.innerHTML='<p style="color:#94A3B8;font-style:italic;font-size:13px;text-align:center;padding:8px">No medications added yet</p>';}
+  S.medications.forEach(function(m){
+    var row=D("display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;");
+    var info=D("flex:1;");
+    var badge2=m.status==="caution"?'<span style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;padding:2px 7px;border-radius:50px;font-size:9px;font-weight:700">⚠ Review with pharmacist</span>':'<span style="background:#ECFDF5;color:#065F46;border:1px solid #BBF7D0;padding:2px 7px;border-radius:50px;font-size:9px;font-weight:700">✓ No flags</span>';
+    info.innerHTML='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px"><span style="font-weight:700;font-size:14px;color:#1c1c1e">'+m.name+'</span>'+badge2+'</div><p style="font-size:11px;color:#6b7280">'+m.dosage+' · '+m.frequency+'</p>';
+    var del=el("button",{style:"width:28px;height:28px;background:#FEF2F2;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;"});
+    del.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    (function(mid){del.addEventListener("click",function(){S.medications=S.medications.filter(function(x){return x.id!==mid;});LS.set("meds",S.medications);render();});})(m.id);
+    ap(row,info,del);ap(medList,row);
+  });
+  ap(medContent,medList);
+  ap(c,sectionCard("Medications","#EF4444","activity",medContent));
+
+  // Personal info
+  var pi=D();
+  pi.innerHTML='<label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px">Blood Type</label>';
+  var btInp=el("input",{type:"text","class":"inp"});btInp.value=S.bloodType;btInp.style.marginBottom="10px";
+  btInp.addEventListener("input",function(){S.bloodType=this.value;LS.set("bt",this.value);});
+  pi.appendChild(btInp);
+  pi.innerHTML+='<label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px">Medical History</label>';
+  var histTa=el("textarea",{"class":"inp",rows:"3"});histTa.value=S.history;
+  histTa.addEventListener("input",function(){S.history=this.value;LS.set("history",this.value);});
+  pi.appendChild(histTa);
+  ap(c,sectionCard("Personal Info","#007AFF","file",pi));
+
+  // Allergies
+  var al=D();
+  var alRow=D("display:flex;gap:8px;margin-bottom:10px;");
+  var alInp=el("input",{type:"text","class":"inp",placeholder:"Add allergy…"});alInp.value=S.newAllergy;
+  alInp.addEventListener("input",function(){S.newAllergy=this.value;});
+  alInp.addEventListener("keydown",function(e){if(e.key==="Enter"&&this.value&&!S.allergies.includes(this.value)){S.allergies=S.allergies.concat([this.value]);LS.set("allergies",S.allergies);S.newAllergy="";render();}});
+  var alBtn=el("button",{style:"padding:0 16px;border-radius:12px;background:#007AFF;color:white;border:none;font-weight:700;",text:"Add"});
+  alBtn.addEventListener("click",function(){if(S.newAllergy&&!S.allergies.includes(S.newAllergy)){S.allergies=S.allergies.concat([S.newAllergy]);LS.set("allergies",S.allergies);S.newAllergy="";render();}});
+  ap(alRow,alInp,alBtn);ap(al,alRow);
+  var tags=D("display:flex;flex-wrap:wrap;gap:6px;");
+  if(!S.allergies.length)tags.innerHTML='<p style="color:#94A3B8;font-style:italic;font-size:13px">No allergies listed</p>';
+  S.allergies.forEach(function(a){
+    var t=D("display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:50px;font-size:13px;font-weight:600;color:#C2410C;");
+    t.appendChild(document.createTextNode(a));
+    var xb=el("button",{style:"background:none;border:none;display:flex;align-items:center;padding:0;"});
+    xb.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    (function(av){xb.addEventListener("click",function(){S.allergies=S.allergies.filter(function(x){return x!==av;});LS.set("allergies",S.allergies);render();});})(a);
+    ap(t,xb);ap(tags,t);
+  });
+  ap(al,tags);
+  ap(c,sectionCard("Allergies","#F97316","alert",al));
+  return c;
+}
+
+// ── PAGE: CHECK ──────────────────────────────────────────────────────────────
+function pageCheck(){
+  var c=D();
+  var hero=D("border-radius:20px;padding:18px;background:linear-gradient(135deg,#0f172a,#1d4ed8);margin-bottom:16px;");
+  hero.innerHTML='<p style="color:white;font-weight:900;font-size:17px;margin-bottom:4px">💊 Medication Awareness Check</p><p style="color:#93C5FD;font-size:12px;line-height:1.55">Add medications for a general awareness overview. Always confirm with your pharmacist or doctor.</p>';
+  ap(c,hero);
+  var cc=D();
+  var row=D("display:flex;gap:8px;margin-bottom:10px;");
+  var ci=el("input",{type:"text","class":"inp",placeholder:"e.g. Aspirin"});ci.value=S.checkInput;
+  ci.addEventListener("input",function(){S.checkInput=this.value;});
+  ci.addEventListener("keydown",function(e){if(e.key==="Enter"&&this.value){if(!S.checkMeds.includes(this.value))S.checkMeds=S.checkMeds.concat([this.value]);S.checkInput="";render();}});
+  var cb=el("button",{style:"padding:0 16px;border-radius:12px;background:#007AFF;color:white;border:none;font-weight:700;",text:"Add"});
+  cb.addEventListener("click",function(){if(S.checkInput&&!S.checkMeds.includes(S.checkInput)){S.checkMeds=S.checkMeds.concat([S.checkInput]);S.checkInput="";render();}});
+  ap(row,ci,cb);ap(cc,row);
+  var tags2=D("display:flex;flex-wrap:wrap;gap:6px;");
+  if(!S.checkMeds.length)tags2.innerHTML='<p style="color:#94A3B8;font-style:italic;font-size:12px">Add at least two medications to check</p>';
+  S.checkMeds.forEach(function(m){
+    var t=D("display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:50px;font-size:13px;font-weight:600;color:#1D4ED8;");
+    t.appendChild(document.createTextNode(m));
+    var xb=el("button",{style:"background:none;border:none;display:flex;align-items:center;padding:0;"});
+    xb.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    (function(mv){xb.addEventListener("click",function(){S.checkMeds=S.checkMeds.filter(function(x){return x!==mv;});render();});})(m);
+    ap(t,xb);ap(tags2,t);
+  });
+  ap(cc,tags2);
+  ap(c,sectionCard("Add Medications","#9333EA","steth",cc));
+  var risk=checkDrugs(S.checkMeds);
+  if(risk!=="none"){
+    var rCard=D("border-radius:16px;padding:18px;border-width:2px;border-style:solid;margin-bottom:14px;background:"+(risk==="flag"?"#FFF8F0":"#F0FFF4")+";border-color:"+(risk==="flag"?"#FED7AA":"#BBF7D0")+";");
+    rCard.innerHTML='<div style="display:flex;gap:12px;align-items:flex-start"><div style="width:44px;height:44px;border-radius:50%;background:'+(risk==="flag"?"rgba(251,146,60,.2)":"rgba(74,222,128,.2)")+';display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="'+(risk==="flag"?"#EA580C":"#16A34A")+'" stroke-width="2">'+(risk==="flag"?'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>':'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>')+'</svg></div><div style="flex:1"><p style="font-weight:900;font-size:16px;color:'+(risk==="flag"?"#7C2D12":"#14532D")+'">'+(risk==="flag"?"⚠ Heads Up — Worth Reviewing":"✓ No Common Flags Found")+'</p><p style="font-size:13px;margin-top:5px;line-height:1.6;color:'+(risk==="flag"?"#92400E":"#166534")+'">'+(risk==="flag"?"Some medications in this combination are commonly reviewed together. General awareness only — speak with your pharmacist.":"No commonly known flags found. General awareness only — not a substitute for professional review.")+'</p></div></div>';
+    ap(c,rCard);
+  }
+  var tip=D("display:flex;gap:10px;padding:14px 16px;background:#EFF6FF;border-radius:16px;border:1px solid #BFDBFE;");
+  tip.innerHTML='<span style="font-size:22px">💡</span><div><p style="font-weight:700;color:#1E40AF;font-size:13px;margin-bottom:3px">How to use this tool</p><p style="color:#1D4ED8;font-size:12px;line-height:1.55">General awareness only. Try "Lisinopril" and "Aspirin" as an example. Your pharmacist always has the full picture.</p></div>';
+  ap(c,tip);
+  return c;
+}
+
+// ── PAGE: FAMILY ─────────────────────────────────────────────────────────────
+function pageFamily(){
+  var c=D();
+  ap(c,sectionCard("Emergency Contacts","#34C759","phone",contactsList()));
+  var logContent=D();
+  var logHdr=D("display:grid;grid-template-columns:1fr 1fr 1fr;padding:6px 0;background:#F8FAFC;border-radius:8px;margin-bottom:6px;");
+  logHdr.innerHTML='<span style="font-size:9px;font-weight:900;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;padding:0 4px">Caregiver</span><span style="font-size:9px;font-weight:900;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em">Action</span><span style="font-size:9px;font-weight:900;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;text-align:right">Time</span>';
+  ap(logContent,logHdr);
+  [{name:"Jane Doe (Wife)",action:"Viewed Medical ID",time:"2h ago"},{name:"Dr. Smith",action:"Accessed Lab Reports",time:"5h ago"},{name:"EMS Unit 7",action:"Scanned NFC Card",time:"18h ago"}].forEach(function(l){
+    var row=D("display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 0;border-bottom:1px solid #f1f5f9;");
+    row.innerHTML='<span style="font-size:12px;font-weight:600;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+l.name+'</span><span style="font-size:11px;color:#64748b">'+l.action+'</span><span style="font-size:11px;color:#94A3B8;text-align:right">'+l.time+'</span>';
+    ap(logContent,row);
+  });
+  ap(c,sectionCard("Caregiver Access Log","#007AFF","history",logContent));
+  return c;
+}
+
+// ── PAGE: TRAVEL ─────────────────────────────────────────────────────────────
+function pageTravel(){
+  var c=D();
+  var search=D("position:relative;margin-bottom:14px;");
+  search.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search destination (e.g. Tokyo, Japan)" style="width:100%;background:white;border:1px solid #e2e8f0;border-radius:16px;padding:12px 12px 12px 40px;font-size:14px;outline:none;box-shadow:0 1px 4px rgba(0,0,0,.06);">';
+  ap(c,search);
+  var adv=D();
+  [{icon:"shield",color:"#F97316",title:"Vaccinations Recommended",desc:"Hepatitis A, Typhoid, and Routine vaccines"},{icon:"phone",color:"#EF4444",title:"Emergency Numbers",desc:"Ambulance: 119 · Police: 110"},{icon:"plane",color:"#007AFF",title:"Travel Insurance",desc:"Coverage active for 90 days"}].forEach(function(it){
+    var row=D("display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;");
+    var ic=D("width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:"+it.color+";");
+    ap(ic,svg(it.icon,15,"none","white"));
+    var info=D();
+    info.innerHTML='<p style="font-weight:700;color:#1c1c1e;font-size:13px;margin-bottom:2px">'+it.title+'</p><p style="color:#6b7280;font-size:11px">'+it.desc+'</p>';
+    ap(row,ic,info);ap(adv,row);
+  });
+  ap(c,sectionCard("Health Advisories","#007AFF","globe",adv));
+  var chatLbl=el("p",{style:"font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;",text:"Travel AI Assistant"});
+  ap(c,chatLbl,chatPanel("travel"));
+  return c;
+}
+
+// ── API KEY MODAL ─────────────────────────────────────────────────────────────
+function apiKeyModal(){
+  var bg=D("position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;");
+  bg.addEventListener("click",function(){S.showApiKey=false;render();});
+  var sheet=D("background:white;border-radius:22px 22px 0 0;width:100%;max-height:70vh;overflow-y:auto;padding:20px 20px calc(32px + env(safe-area-inset-bottom,0px));");
+  sheet.addEventListener("click",function(e){e.stopPropagation();});
+  sheet.innerHTML='<div style="width:36px;height:4px;background:#E0E0E0;border-radius:2px;margin:0 auto 16px;"></div><h2 style="font-size:20px;font-weight:900;color:#1c1c1e;margin-bottom:6px">Settings</h2><p style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:16px">Enter your Anthropic API key to enable Medy AI chat. Stored only on this device.</p><label style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:6px">Anthropic API Key</label>';
+  var inp=el("input",{type:"password","class":"inp",placeholder:"sk-ant-..."});
+  inp.value=S.apiKey;inp.style.marginBottom="10px";
+  inp.addEventListener("input",function(){S.apiKey=this.value;});
+  var saveBtn=el("button",{style:"width:100%;padding:12px;border-radius:12px;background:#007AFF;color:white;border:none;font-size:15px;font-weight:700;",text:"Save"});
+  saveBtn.addEventListener("click",function(){LS.set("apiKey",S.apiKey);S.showApiKey=false;render();});
+  var note=el("p",{style:"font-size:11px;color:#94A3B8;text-align:center;margin-top:10px;line-height:1.6;"});
+  note.innerHTML='Get your key at <a href="https://console.anthropic.com" target="_blank" style="color:#007AFF">console.anthropic.com</a>. Stored locally, never shared except with the Anthropic API.';
+  ap(sheet,inp,saveBtn,note);ap(bg,sheet);
+  return bg;
+}
+
+// ── MAIN APP RENDER ───────────────────────────────────────────────────────────
+function renderApp(){
+  var isMobile=window.innerWidth<768;
+  var tc=S.sm?"white":"#1c1c1e";
+  var bg=S.sm?"#1a1a1a":"#F0F4F8";
+  var sbg=S.sm?"#0d0d0d":"white";
+  var bdr=S.sm?"#2a2a2a":"#e5e7eb";
+  var PAGES=[{id:"emergency",label:"ID",icon:"heart"},{id:"vault",label:"Vault",icon:"shield"},{id:"check",label:"Med-Check",icon:"steth"},{id:"family",label:"Family",icon:"users"},{id:"travel",label:"Travel",icon:"globe"}];
+  var TITLES={emergency:"Active Medical Guardian",vault:"Secure Vault",check:"Awareness Check",family:"Family Hub",travel:"Travel Guard"};
+
+  var root=D("position:fixed;inset:0;display:flex;"+(isMobile?"flex-direction:column;":"")+"background:"+bg+";");
+
+  function lockBtn(){
+    var b=el("button",{style:"display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:10px;background:rgba(239,68,68,.1);color:#EF4444;border:1px solid rgba(239,68,68,.2);font-size:11px;font-weight:700;"});
+    b.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Lock';
+    b.addEventListener("click",function(){S.screen="lock";S.pinEntry="";render();});
+    return b;
+  }
+  function settingsBtn(){
+    var b=el("button",{style:"display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:10px;background:rgba(0,122,255,.08);color:#007AFF;border:none;font-size:11px;font-weight:700;"});
+    b.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings';
+    b.addEventListener("click",function(){S.showApiKey=true;render();});
+    return b;
+  }
+
+  if(isMobile){
+    // Mobile header
+    var hdr=D("background:"+(S.sm?"#000":"#F2F2F7")+";padding:calc(10px + env(safe-area-inset-top,0px)) 16px 8px;flex-shrink:0;");
+    var hTop=D("display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;");
+    var hLeft=D("display:flex;align-items:center;gap:8px;");
+    var hIco=D("width:32px;height:32px;background:#EF4444;border-radius:10px;display:flex;align-items:center;justify-content:center;");
+    ap(hIco,svg("credit",16,"none","white"));
+    var hTitle=el("span",{style:"font-size:20px;font-weight:900;color:"+tc+";",text:"MedyCard Pro"});
+    ap(hLeft,hIco,hTitle);
+    var hRight=D("display:flex;gap:6px;");
+    ap(hRight,settingsBtn(),lockBtn());
+    ap(hTop,hLeft,hRight);ap(hdr,hTop);
+    ap(hdr,secBadge(),modeBtns());
+    var pt=el("h1",{style:"font-size:"+(S.sm?"28px":"22px")+";font-weight:900;color:"+tc+";margin-top:8px;letter-spacing:-.3px;",text:TITLES[S.page]||"MedyCard Pro"});
+    ap(hdr,pt);
+    ap(root,hdr);
+
+    // Content
+    var content=D();
+    content.style.cssText="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));";
+    if(S.page==="emergency")ap(content,pageEmergency());
+    else if(S.page==="vault")ap(content,pageVault());
+    else if(S.page==="check")ap(content,pageCheck());
+    else if(S.page==="family")ap(content,pageFamily());
+    else if(S.page==="travel")ap(content,pageTravel());
+    ap(root,content);
+
+    // Bottom nav
+    var nav=D();
+    nav.style.cssText="flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));background:"+(S.sm?"rgba(17,17,17,.97)":"rgba(249,249,249,.97)")+";border-top:1px solid "+bdr+";";
+    PAGES.forEach(function(p){
+      var active=S.page===p.id;
+      var color=active?(S.sm?"#FFD600":"#007AFF"):(S.sm?"#666":"#8E8E93");
+      var b=el("button",{style:"display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:14px;border:none;background:transparent;color:"+color+";min-width:"+(S.sm?"58px":"44px")+";"});
+      ap(b,svg(p.icon,S.sm?28:22,active&&p.id==="emergency"?color:"none",color));
+      ap(b,el("span",{style:"font-size:"+(S.sm?"12px":"10px")+";font-weight:"+(active?"700":"500")+";",text:p.label}));
+      (function(pid){b.addEventListener("click",function(){S.page=pid;render();});})(p.id);
+      ap(nav,b);
+    });
+    ap(root,nav);
+
+    // Mobile chat overlay
+    if(S.isChatOpen){
+      var chatBg=D("position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;flex-direction:column;justify-content:flex-end;");
+      chatBg.addEventListener("click",function(){S.isChatOpen=false;render();});
+      var sheet=D("background:white;border-radius:22px 22px 0 0;max-height:72vh;display:flex;flex-direction:column;");
+      sheet.addEventListener("click",function(e){e.stopPropagation();});
+      var handle=D("width:36px;height:4px;background:#E0E0E0;border-radius:2px;margin:10px auto 6px;");
+      ap(sheet,handle,chatPanel(S.page));
+      ap(chatBg,sheet);ap(root,chatBg);
+    }
+
+  } else {
+    // Desktop sidebar
+    var side=D("width:260px;display:flex;flex-direction:column;padding:20px;background:"+sbg+";border-right:1px solid "+bdr+";flex-shrink:0;overflow-y:auto;");
+    var stop=D("display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;");
+    var sLeft=D("display:flex;align-items:center;gap:10px;");
+    var sIco=D("width:36px;height:36px;background:#EF4444;border-radius:12px;display:flex;align-items:center;justify-content:center;");
+    ap(sIco,svg("credit",18,"none","white"));
+    var sTxt=D();
+    sTxt.innerHTML='<p style="font-size:18px;font-weight:900;color:'+tc+'">MedyCard Pro</p><p style="font-size:8px;font-weight:700;color:#007AFF;text-transform:uppercase;letter-spacing:.08em">Active Medical Guardian</p>';
+    ap(sLeft,sIco,sTxt);ap(stop,sLeft,lockBtn());ap(side,stop);
+    ap(side,modeBtns());
+    ap(side,D("height:12px;"));
+    ap(side,secBadge());
+    ap(side,D("height:12px;"));
+    var snav=D("display:flex;flex-direction:column;gap:4px;flex:1;");
+    PAGES.forEach(function(p){
+      var active=S.page===p.id;
+      var b=el("button",{style:"display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:12px;border:none;background:"+(active?(S.sm?"#FFD600":"#007AFF"):"transparent")+";color:"+(active?(S.sm?"#000":"white"):(S.sm?"#888":"#6b7280"))+";font-size:14px;font-weight:600;"});
+      ap(b,svg(p.icon,18,active?(S.sm?"#000":"white"):(S.sm?"#888":"#6b7280"),"none"));
+      ap(b,el("span",{text:p.label}));
+      (function(pid){b.addEventListener("click",function(){S.page=pid;render();});})(p.id);
+      ap(snav,b);
+    });
+    ap(side,snav);
+    ap(side,D("height:8px;"));
+    ap(side,settingsBtn());
+    ap(root,side);
+
+    // Main
+    var main=D("flex:1;display:flex;flex-direction:column;overflow:hidden;");
+    var mhdr=D("padding:20px 28px;background:"+(S.sm?"#111":"white")+";border-bottom:1px solid "+bdr+";display:flex;align-items:center;justify-content:space-between;flex-shrink:0;");
+    ap(mhdr,el("h1",{style:"font-size:"+(S.sm?"28px":"22px")+";font-weight:900;color:"+tc+";letter-spacing:-.2px;",text:TITLES[S.page]||"MedyCard Pro"}));
+    if(S.page!=="travel"){
+      var chatToggle=el("button",{style:"display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:12px;font-weight:900;color:white;border:none;background:"+(S.isChatOpen?"#5856D6":"linear-gradient(135deg,#007AFF,#5856D6)")+";font-size:13px;"});
+      chatToggle.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'+(S.isChatOpen?"Close Medy AI":"Ask Medy AI");
+      chatToggle.addEventListener("click",function(){S.isChatOpen=!S.isChatOpen;render();});
+      ap(mhdr,chatToggle);
+    }
+    ap(main,mhdr);
+    var body=D("flex:1;display:flex;overflow:hidden;");
+    var mc=D();mc.style.cssText="flex:1;overflow-y:auto;padding:24px 28px;-webkit-overflow-scrolling:touch;";
+    if(S.page==="emergency")ap(mc,pageEmergency());
+    else if(S.page==="vault")ap(mc,pageVault());
+    else if(S.page==="check")ap(mc,pageCheck());
+    else if(S.page==="family")ap(mc,pageFamily());
+    else if(S.page==="travel")ap(mc,pageTravel());
+    ap(body,mc);
+    if(S.isChatOpen&&S.page!=="travel"){
+      var cc2=D("width:300px;border-left:1px solid "+bdr+";padding:16px;display:flex;flex-direction:column;flex-shrink:0;background:"+sbg+";overflow:hidden;");
+      ap(cc2,chatPanel(S.page));ap(body,cc2);
+    }
+    ap(main,body);ap(root,main);
+  }
+
+  if(S.showApiKey)ap(root,apiKeyModal());
+
+  document.getElementById("app").innerHTML="";
+  document.getElementById("app").appendChild(root);
+}
+
+// ── RENDER ROUTER ─────────────────────────────────────────────────────────────
+function render(){
+  if(S.screen==="setup")renderSetup();
+  else if(S.screen==="emergency")renderEmergency();
+  else if(S.screen==="lock")renderLock();
+  else renderApp();
+}
+
+render();
+window.addEventListener("resize",function(){
+  if(S.screen==="app")renderApp();
+});
+</script>
+</body>
+</html>
