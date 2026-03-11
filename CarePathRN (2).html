@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="CarePath RN"/>
+<link rel="apple-touch-icon" href="data:image/png;base64,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"/>
+<link rel="icon" type="image/png" href="data:image/png;base64,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"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>CarePath RN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  /* Family palette */
+  --f-bg:#FAF7F2;
+  --f-card:#FFFFFF;
+  --f-pri:#1A3A3A;
+  --f-sec:#4A6A6A;
+  --f-muted:#8A9A9A;
+  --f-teal:#0D7C6E;
+  --f-teal2:#E8F5F3;
+  --f-amber:#D4860A;
+  --f-amber2:#FEF3E2;
+  --f-rose:#C0414A;
+  --f-rose2:#FEF0F1;
+  --f-sky:#1B6CA8;
+  --f-sky2:#EBF4FD;
+  --f-border:#E8E2D8;
+  --f-shadow:rgba(26,58,58,0.08);
+  /* RN palette */
+  --r-bg:#0A1628;
+  --r-card:#0F2040;
+  --r-card2:#162A4A;
+  --r-pri:#FFFFFF;
+  --r-sec:rgba(255,255,255,0.75);
+  --r-muted:rgba(255,255,255,0.4);
+  --r-blue:#3B82F6;
+  --r-blue2:rgba(59,130,246,0.15);
+  --r-teal:#0D9488;
+  --r-teal2:rgba(13,148,136,0.15);
+  --r-green:#22C55E;
+  --r-green2:rgba(34,197,94,0.12);
+  --r-amber:#F59E0B;
+  --r-amber2:rgba(245,158,11,0.12);
+  --r-red:#EF4444;
+  --r-red2:rgba(239,68,68,0.12);
+  --r-purple:#A855F7;
+  --r-purple2:rgba(168,85,247,0.12);
+  --r-border:rgba(255,255,255,0.08);
+  --r-border2:rgba(59,130,246,0.25);
+}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;}
+#app{height:100%;overflow:hidden;}
+.page{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;}
+/* ── FAMILY STYLES ── */
+.f-page{background:var(--f-bg);}
+.f-topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,247,242,0.95);
+  backdrop-filter:blur(12px);
+  padding:calc(var(--sat) + 12px) 20px 12px;
+  border-bottom:1px solid var(--f-border);
+  display:flex;align-items:center;gap:12px;
+  font-family:'DM Sans',sans-serif;
+}
+.f-topbar h1{font-family:'Playfair Display',serif;font-size:24px;color:var(--f-pri);flex:1;text-align:center;}
+.f-topbar .back-btn{
+  width:36px;height:36px;border-radius:50%;background:var(--f-border);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:21px;color:var(--f-sec);flex-shrink:0;
+}
+.f-topbar .placeholder{width:36px;flex-shrink:0;}
+.f-body{padding:16px 20px calc(var(--sab) + 80px);}
+.f-card{
+  background:var(--f-card);border-radius:18px;
+  box-shadow:0 2px 12px var(--f-shadow);
+  border:1px solid var(--f-border);
+  padding:18px;margin-bottom:12px;
+}
+.f-card-teal{background:var(--f-teal2);border:1.5px solid rgba(13,124,110,0.2);}
+.f-card-amber{background:var(--f-amber2);border:1.5px solid rgba(212,134,10,0.2);}
+.f-card-rose{background:var(--f-rose2);border:1.5px solid rgba(192,65,74,0.2);}
+.f-card-sky{background:var(--f-sky2);border:1.5px solid rgba(27,108,168,0.2);}
+.f-label{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--f-muted);margin-bottom:6px;}
+.f-title{font-family:'Playfair Display',serif;font-size:25px;color:var(--f-pri);margin-bottom:6px;line-height:1.3;}
+.f-body-text{font-size:18px;color:var(--f-sec);line-height:1.7;}
+.f-small{font-size:17px;color:var(--f-muted);line-height:1.6;}
+.f-tag{display:inline-flex;align-items:center;padding:4px 12px;border-radius:50px;font-size:15px;font-weight:600;margin:3px;}
+.f-btn{
+  width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:19px;font-weight:600;
+  transition:transform .1s,opacity .1s;
+}
+.f-btn:active{transform:scale(.98);opacity:.9;}
+.f-btn-primary{background:var(--f-teal);color:white;}
+.f-btn-outline{background:transparent;border:2px solid var(--f-border);color:var(--f-sec);}
+.f-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(250,247,242,0.97);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--f-border);
+  padding:8px 0 calc(var(--sab) + 6px);
+  display:flex;
+}
+.f-nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;padding:6px 0;
+  font-family:'DM Sans',sans-serif;
+}
+.f-nav-btn span:first-child{font-size:25px;}
+.f-nav-btn span:last-child{font-size:13px;font-weight:600;color:var(--f-muted);}
+.f-nav-btn.on span:last-child{color:var(--f-teal);}
+.f-nav-btn.on span:first-child{filter:none;}
+/* ── RN STYLES ── */
+.r-page{background:var(--r-bg);}
+.r-topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,22,40,0.97);
+  backdrop-filter:blur(12px);
+  padding:calc(var(--sat) + 12px) 20px 12px;
+  border-bottom:1px solid var(--r-border);
+  display:flex;align-items:center;gap:12px;
+}
+.r-topbar h1{font-family:'DM Sans',sans-serif;font-size:21px;font-weight:700;color:var(--r-pri);flex:1;text-align:center;}
+.r-topbar .back-btn{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--r-card2);border:1px solid var(--r-border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:21px;color:var(--r-sec);flex-shrink:0;
+}
+.r-topbar .placeholder{width:36px;flex-shrink:0;}
+.r-body{padding:16px 16px calc(var(--sab) + 80px);}
+.r-card{
+  background:var(--r-card);border-radius:14px;
+  border:1px solid var(--r-border);
+  padding:16px;margin-bottom:10px;
+}
+.r-card-blue{background:var(--r-blue2);border:1px solid var(--r-border2);}
+.r-card-teal{background:var(--r-teal2);border:1px solid rgba(13,148,136,0.25);}
+.r-card-amber{background:var(--r-amber2);border:1px solid rgba(245,158,11,0.2);}
+.r-card-red{background:var(--r-red2);border:1px solid rgba(239,68,68,0.2);}
+.r-card-green{background:var(--r-green2);border:1px solid rgba(34,197,94,0.2);}
+.r-label{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--r-muted);margin-bottom:5px;}
+.r-title{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:700;color:var(--r-pri);margin-bottom:4px;}
+.r-body-text{font-size:17px;color:var(--r-sec);line-height:1.65;}
+.r-mono{font-family:'DM Mono',monospace;font-size:17px;color:var(--r-blue);}
+.r-btn{
+  padding:12px 16px;border-radius:10px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:18px;font-weight:600;
+  transition:transform .1s,opacity .1s;
+}
+.r-btn:active{transform:scale(.98);}
+.r-btn-blue{background:var(--r-blue);color:white;}
+.r-btn-full{width:100%;}
+.r-btn-teal{background:var(--r-teal);color:white;}
+.r-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(10,22,40,0.97);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--r-border);
+  padding:8px 0 calc(var(--sab) + 6px);
+  display:flex;
+}
+.r-nav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;padding:6px 0;
+  font-family:'DM Sans',sans-serif;
+}
+.r-nav-btn span:first-child{font-size:24px;}
+.r-nav-btn span:last-child{font-size:13px;font-weight:600;color:var(--r-muted);}
+.r-nav-btn.on span:last-child{color:var(--r-blue);}
+/* ── SHARED ── */
+.row{display:flex;gap:10px;}
+.col{flex:1;}
+input,textarea,select{
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+}
+.chip{
+  display:inline-flex;padding:6px 14px;border-radius:50px;
+  font-size:17px;font-weight:600;cursor:pointer;
+  border:2px solid transparent;transition:all .15s;
+}
+.divider{height:1px;background:var(--f-border);margin:12px 0;}
+.r-divider{height:1px;background:var(--r-border);margin:10px 0;}
+/* ── SCORE DISPLAY ── */
+.score-ring{
+  width:80px;height:80px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;flex-shrink:0;
+  border:3px solid currentColor;
+}
+.score-ring .num{font-size:30px;font-weight:700;line-height:1;}
+.score-ring .lbl{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:1px;}
+/* ── SCALE FORM INPUTS ── */
+.scale-opt{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px 14px;border-radius:12px;
+  background:var(--r-card2);border:1.5px solid var(--r-border);
+  cursor:pointer;margin-bottom:7px;transition:border-color .15s,background .15s;
+}
+.scale-opt.sel{background:var(--r-blue2);border-color:var(--r-blue);}
+.scale-opt-num{
+  width:26px;height:26px;border-radius:8px;
+  background:var(--r-card);border:1.5px solid var(--r-border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:17px;font-weight:600;
+  color:var(--r-muted);flex-shrink:0;margin-top:1px;
+}
+.scale-opt.sel .scale-opt-num{background:var(--r-blue);border-color:var(--r-blue);color:white;}
+.scale-opt-text{flex:1;}
+.scale-opt-label{font-size:17px;font-weight:600;color:var(--r-pri);}
+.scale-opt-sub{font-size:15px;color:var(--r-muted);line-height:1.5;margin-top:2px;}
+/* ── FADE ANIM ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.fadeUp{animation:fadeUp .3s ease both;}
+/* ── SBAR ── */
+.sbar-section{
+  border-left:3px solid;padding:12px 14px;border-radius:0 12px 12px 0;
+  background:var(--r-card2);margin-bottom:10px;
+}
+.sbar-label{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;}
+.sbar-result{
+  background:var(--r-bg);border:1px solid var(--r-border2);
+  border-radius:12px;padding:16px;font-size:17px;
+  color:var(--r-sec);line-height:1.8;white-space:pre-wrap;
+  font-family:'DM Mono',monospace;
+}
+/* ── CALC ── */
+.calc-input{
+  width:100%;padding:12px 14px;border-radius:10px;
+  background:var(--r-card2);border:1.5px solid var(--r-border);
+  color:var(--r-pri);font-size:19px;
+}
+.calc-input:focus{border-color:var(--r-blue);}
+.calc-result{
+  background:var(--r-blue2);border:1px solid var(--r-border2);
+  border-radius:12px;padding:16px;text-align:center;margin-top:12px;
+}
+.calc-result .big{font-size:40px;font-weight:700;color:var(--r-blue);font-family:'DM Mono',monospace;}
+.calc-result .unit{font-size:17px;color:var(--r-sec);margin-top:4px;}
+/* ── MODE SELECT ── */
+.mode-select-page{
+  min-height:100%;
+  background:linear-gradient(160deg,#0A1628 0%,#0D2B40 50%,#0A1628 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(var(--sat) + 30px) 24px calc(var(--sab) + 30px);
+}
+/* ── SYMPTOM SCALE ── */
+.sym-slider{width:100%;margin:10px 0;}
+.pain-dots{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;}
+.pain-dot{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;cursor:pointer;border:2px solid transparent;
+  transition:transform .1s;
+}
+.pain-dot.sel{transform:scale(1.2);border-color:white;}
+/* ── EMERGENCY ── */
+.emerg-page{
+  background:linear-gradient(180deg,#1A0A0A 0%,#2A0D0D 100%);
+  min-height:100%;padding:calc(var(--sat) + 20px) 20px calc(var(--sab) + 20px);
+}
+.emerg-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.4);
+  border-radius:50px;padding:4px 14px;font-size:15px;font-weight:700;
+  color:#FCA5A5;text-transform:uppercase;letter-spacing:.08em;
+}
+/* ── PROFILE SETUP ── */
+.setup-page{
+  background:var(--f-bg);min-height:100%;
+  padding:calc(var(--sat) + 20px) 20px calc(var(--sab) + 20px);
+}
+.f-input{
+  width:100%;padding:13px 16px;border-radius:12px;
+  background:white;border:1.5px solid var(--f-border);
+  color:var(--f-pri);font-size:19px;margin-bottom:4px;
+}
+.f-input:focus{border-color:var(--f-teal);}
+.f-input-label{font-size:17px;font-weight:600;color:var(--f-sec);margin-bottom:6px;display:block;}
+.f-input-group{margin-bottom:14px;}
+/* Scrollbar hide */
+::-webkit-scrollbar{display:none;}
+</style>
+<script>
+// ── ICON GENERATOR ──────────────────────────────────────────────────────────
+(function(){
+  var c=document.createElement('canvas');
+  c.width=512;c.height=512;
+  var x=c.getContext('2d');
+
+  function rr(ctx,rx,ry,rw,rh,rad){
+    ctx.beginPath();
+    ctx.moveTo(rx+rad,ry);
+    ctx.lineTo(rx+rw-rad,ry);ctx.arcTo(rx+rw,ry,rx+rw,ry+rad,rad);
+    ctx.lineTo(rx+rw,ry+rh-rad);ctx.arcTo(rx+rw,ry+rh,rx+rw-rad,ry+rh,rad);
+    ctx.lineTo(rx+rad,ry+rh);ctx.arcTo(rx,ry+rh,rx,ry+rh-rad,rad);
+    ctx.lineTo(rx,ry+rad);ctx.arcTo(rx,ry,rx+rad,ry,rad);
+    ctx.closePath();
+  }
+
+  // Rich navy-to-blue gradient background
+  var bg=x.createLinearGradient(0,0,512,512);
+  bg.addColorStop(0,'#060F1E');
+  bg.addColorStop(0.6,'#0D2448');
+  bg.addColorStop(1,'#1A3A7A');
+  x.fillStyle=bg;
+  rr(x,0,0,512,512,100);
+  x.fill();
+
+  // Glowing circle behind cross
+  var glow=x.createRadialGradient(256,210,0,256,210,160);
+  glow.addColorStop(0,'rgba(59,130,246,0.35)');
+  glow.addColorStop(1,'rgba(59,130,246,0)');
+  x.fillStyle=glow;
+  x.beginPath();x.arc(256,210,160,0,Math.PI*2);x.fill();
+
+  // Medical cross — bold and centered higher up
+  var cx=256, cy=205, arm=100, thick=48, cr=18;
+  x.fillStyle='white';
+  x.shadowColor='rgba(147,197,253,0.6)';
+  x.shadowBlur=30;
+  rr(x,cx-arm,cy-thick/2,arm*2,thick,cr); x.fill();
+  rr(x,cx-thick/2,cy-arm,thick,arm*2,cr); x.fill();
+  x.shadowBlur=0;
+
+  // Separator line
+  x.strokeStyle='rgba(255,255,255,0.15)';
+  x.lineWidth=2;
+  x.beginPath();
+  x.moveTo(156,330);x.lineTo(356,330);
+  x.stroke();
+
+  // "RN" — large, bold, white
+  x.font='800 96px -apple-system,Arial,sans-serif';
+  x.fillStyle='white';
+  x.textAlign='center';
+  x.textBaseline='middle';
+  x.fillText('RN',256,390);
+
+  var dataUrl=c.toDataURL('image/png');
+  var link=document.createElement('link');
+  link.rel='icon';link.type='image/png';link.href=dataUrl;
+  document.head.appendChild(link);
+  var al=document.createElement('link');
+  al.rel='apple-touch-icon';al.href=dataUrl;
+  document.head.appendChild(al);
+})();
+</script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+var S = {
+  screen: "mode-select",
+  mode: null,        // "family" | "rn"
+  hist: ["mode-select"],
+  // Patient profile
+  patient: JSON.parse(localStorage.getItem("cp_patient") || "null") || {
+    name: "Your Loved One",
+    dob: "",
+    diagnoses: ["Dementia / Alzheimer's"],
+    medications: ["Donepezil 10mg daily","Memantine 10mg BID"],
+    allergies: ["Penicillin","Sulfa drugs"],
+    codeStatus: "DNR / Comfort Care",
+    preferredHospital: "",
+    physician: "",
+    emergencyContacts: [{name:"",phone:"",relation:""}]
+  },
+  profileSetupDone: localStorage.getItem("cp_profileDone") === "1",
+  // Family state
+  fTab: "home",
+  fSymptoms: JSON.parse(localStorage.getItem("cp_symptoms") || "[]"),
+  fSymEntry: {pain:0,confusion:0,breathing:0,appetite:0,sleep:0,notes:""},
+  fSymToday: false,
+  openCondition: null,
+  openMed: null,
+  // RN state
+  rTab: "scales",
+  rScale: null,      // active scale id
+  rScoreState: {},   // scale entry state
+  rScores: JSON.parse(localStorage.getItem("cp_rscores") || "[]"),
+  sbarData: {situation:"",background:"",assessment:"",recommendation:""},
+  sbarResult: "",
+  calcTab: "drip",
+  calcVals: {},
+  // SBAR auto-fill
+  sbarAutoFill: false,
+};
+
+function go(s){ S.hist.push(s); S.screen=s; render(); scrollTop(); }
+function back(){ if(S.hist.length>1){S.hist.pop(); S.screen=S.hist[S.hist.length-1]; render(); scrollTop();} }
+function scrollTop(){ var p=document.querySelector(".page"); if(p) p.scrollTop=0; }
+function save(key,val){ try{localStorage.setItem(key,JSON.stringify(val));}catch(e){} }
+function nm(){ return S.patient.name && S.patient.name !== "Your Loved One" ? S.patient.name : "your loved one"; }
+
+// ═══════════════════════════════════════════════════════
+//  DOM HELPERS
+// ═══════════════════════════════════════════════════════
+function el(tag,attrs,children){
+  var e=document.createElement(tag);
+  if(attrs) Object.keys(attrs).forEach(function(k){
+    if(k==="class") e.className=attrs[k];
+    else if(k==="style") e.style.cssText=attrs[k];
+    else if(k.startsWith("on")) e.addEventListener(k.slice(2),attrs[k]);
+    else e.setAttribute(k,attrs[k]);
+  });
+  if(children){
+    if(typeof children==="string") e.textContent=children;
+    else if(Array.isArray(children)) children.forEach(function(c){if(c) e.appendChild(typeof c==="string"?document.createTextNode(c):c);});
+    else if(children instanceof Node) e.appendChild(children);
+  }
+  return e;
+}
+function div(cls,style){ var e=document.createElement("div"); if(cls) e.className=cls; if(style) e.style.cssText=style; return e; }
+function p(cls){ var e=document.createElement("p"); if(cls) e.className=cls; return e; }
+function span(cls,text){ var e=document.createElement("span"); if(cls) e.className=cls; if(text) e.textContent=text; return e; }
+function btn(cls,text,onclick){ var b=document.createElement("button"); b.className=cls; b.textContent=text; if(onclick) b.addEventListener("click",onclick); return b; }
+function inp(cls,placeholder,val,oninput){
+  var i=document.createElement("input"); i.className=cls; i.placeholder=placeholder||""; i.value=val||"";
+  if(oninput) i.addEventListener("input",oninput); return i;
+}
+function ta(cls,placeholder,val,oninput){
+  var t=document.createElement("textarea"); t.className=cls; t.placeholder=placeholder||""; t.value=val||""; t.rows=3;
+  t.style.cssText="resize:none;width:100%;";
+  if(oninput) t.addEventListener("input",oninput); return t;
+}
+function add(parent,child){ if(child) parent.appendChild(typeof child==="string"?document.createTextNode(child):child); return parent; }
+function addAll(parent,children){ children.forEach(function(c){if(c) add(parent,c);}); return parent; }
+
+// ═══════════════════════════════════════════════════════
+//  RENDER ROUTER
+// ═══════════════════════════════════════════════════════
+function render(){
+  try {
+    var app=document.getElementById("app");
+    app.innerHTML="";
+    var page=document.createElement("div");
+    page.className="page";
+    if(S.screen==="mode-select") renderModeSelect(page);
+    else if(S.screen==="profile-setup") renderProfileSetup(page);
+    else if(S.screen==="emergency") renderEmergency(page);
+    else if(S.mode==="family") renderFamily(page);
+    else if(S.mode==="rn") renderRN(page);
+    app.appendChild(page);
+  } catch(e) {
+    var app2=document.getElementById("app");
+    var errDiv=document.createElement("div");
+    errDiv.style.cssText="padding:40px 20px;color:white;font-family:monospace;background:#1a0a0a;min-height:100%";
+    var em=document.createElement("p"); em.innerHTML="<strong style='color:#f87171'>Error: </strong>"+e.message;
+    var rb=document.createElement("button");
+    rb.textContent="Back to Start";
+    rb.style.cssText="margin-top:16px;padding:10px 20px;background:#3b82f6;color:white;border:none;border-radius:8px;cursor:pointer;font-size:17px;display:block;";
+    rb.onclick=function(){S.screen="mode-select";S.mode=null;render();};
+    errDiv.appendChild(em);errDiv.appendChild(rb);app2.appendChild(errDiv);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  MODE SELECT
+// ═══════════════════════════════════════════════════════
+function renderModeSelect(page){
+  var wrap=div("mode-select-page");
+  // Logo
+  var logo=div("","text-align:center;margin-bottom:40px;");
+  logo.innerHTML=`
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+    <div style="width:90px;height:90px;border-radius:26px;background:linear-gradient(145deg,#0A1628,#1D4ED8);border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 8px 32px rgba(29,78,216,.4);">
+      <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="8" width="10" height="34" rx="5" fill="white"/>
+        <rect x="8" y="20" width="34" height="10" rx="5" fill="white"/>
+      </svg>
+    </div>
+    <div style="font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:white;letter-spacing:-.5px;line-height:1;">CarePath</div>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.4);border-radius:50px;padding:4px 16px;margin-top:8px;">
+      <span style="font-size:15px;font-weight:800;color:#93C5FD;letter-spacing:.12em;">RN</span>
+      <span style="width:3px;height:3px;border-radius:50%;background:rgba(147,197,253,.4);display:inline-block;"></span>
+      <span style="font-size:13px;color:rgba(147,197,253,.8);font-weight:600;">Registered Nurse Edition</span>
+    </div>
+    <div style="font-size:16px;color:rgba(255,255,255,.4);margin-top:10px;font-style:italic;">Clinical clarity. Family comfort.</div>
+  </div>
+`;
+  add(wrap,logo);
+  // Cards
+  [{
+    icon:"👨‍👩‍👧",title:"Family & Caregiver",sub:"Understand what\'s happening, what to expect, and how to help",
+    bg:"linear-gradient(135deg,#0D7C6E,#1B6CA8)",screen:"family-home",mode:"family"
+  },{
+    icon:"👩‍⚕️",title:"RN / Clinician",sub:"Clinical scales, SBAR generator, calculators, and hospice tools",
+    bg:"linear-gradient(135deg,#1D4ED8,#7C3AED)",screen:"rn-home",mode:"rn"
+  }].forEach(function(c){
+    var card=div("","background:"+c.bg+";border-radius:20px;padding:22px;margin-bottom:14px;cursor:pointer;");
+    card.innerHTML='<div style="display:flex;align-items:center;gap:14px"><span style="font-size:40px">'+c.icon+'</span><div><div style="font-family:\'Playfair Display\',serif;font-size:25px;font-weight:600;color:white">'+c.title+'</div><div style="font-size:17px;color:rgba(255,255,255,.7);margin-top:4px;line-height:1.5">'+c.sub+'</div></div></div>';
+    card.onclick=function(){
+      S.mode=c.mode;
+      if(!S.profileSetupDone && c.mode==="family"){ go("profile-setup"); return; }
+      S.screen=c.screen; S.hist=[c.screen]; render();
+    };
+    add(wrap,card);
+  });
+  // Built by RN badge
+  var badge=div("","text-align:center;margin-top:20px;");
+  badge.innerHTML='<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:50px;padding:8px 18px;font-size:17px;color:rgba(255,255,255,.6)">✨ Designed by a Registered Nurse</div>';
+  add(wrap,badge);
+  add(page,wrap);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROFILE SETUP
+// ═══════════════════════════════════════════════════════
+function renderProfileSetup(page){
+  var wrap=div("setup-page");
+  var hdr=div("","padding-bottom:20px;border-bottom:1px solid var(--f-border);margin-bottom:20px;");
+  hdr.innerHTML='<div style="font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--f-teal);margin-bottom:6px">Welcome to CarePath RN</div><div style="font-family:\'Playfair Display\',serif;font-size:32px;color:var(--f-pri);line-height:1.3;margin-bottom:8px">Tell us about your loved one</div><div style="font-size:17px;color:var(--f-sec);line-height:1.65">This information helps us personalize everything for you. You can always update it later.</div>';
+  add(wrap,hdr);
+  function ig(label,child){ var g=div("f-input-group"); add(g,el("label",{"class":"f-input-label"},label)); add(g,child); return g; }
+  var nameInp=inp("f-input","e.g. Margaret Johnson",S.patient.name==="Your Loved One"?"":S.patient.name,function(){S.patient.name=this.value||"Your Loved One";});
+  var dobInp=inp("f-input","",S.patient.dob,function(){S.patient.dob=this.value;}); dobInp.type="date";
+  var dxInp=inp("f-input","e.g. Dementia, Cancer, Heart Failure",S.patient.diagnoses.join(", "),function(){S.patient.diagnoses=this.value.split(",").map(function(s){return s.trim();}).filter(Boolean);});
+  var physInp=inp("f-input","Dr. Smith",S.patient.physician,function(){S.patient.physician=this.value;});
+  addAll(wrap,[
+    ig("Patient Name",nameInp),
+    ig("Date of Birth",dobInp),
+    ig("Diagnoses (comma separated)",dxInp),
+    ig("Primary Physician",physInp),
+  ]);
+  var saveBtn=btn("f-btn f-btn-primary","Save & Continue",function(){
+    save("cp_patient",S.patient);
+    S.profileSetupDone=true; localStorage.setItem("cp_profileDone","1");
+    S.screen="family-home"; S.hist=["family-home"]; render();
+  });
+  saveBtn.style.marginTop="8px";
+  add(wrap,saveBtn);
+  var skip=btn("f-btn f-btn-outline","Skip for now",function(){
+    S.profileSetupDone=true; localStorage.setItem("cp_profileDone","1");
+    S.screen="family-home"; S.hist=["family-home"]; render();
+  });
+  skip.style.marginTop="10px";
+  add(wrap,skip);
+  add(page,wrap);
+}
+</script>
+</body>
+</html>
+<script>
+// ═══════════════════════════════════════════════════════
+//  FAMILY MODE ROUTER
+// ═══════════════════════════════════════════════════════
+function renderFamily(page){
+  page.className="page f-page";
+  var screens={
+    "family-home":renderFamilyHome,
+    "family-hospice":renderFamilyHospice,
+    "family-stages":renderFamilyStages,
+    "family-glossary":renderFamilyGlossary,
+    "family-conditions":renderFamilyConditions,
+    "family-questions":renderFamilyQuestions,
+    "family-passing":renderFamilyPassing,
+    "family-medications":renderFamilyMedications,
+    "family-symptoms":renderFamilySymptoms,
+    "family-emergency":renderEmergency,
+  };
+  var fn=screens[S.screen];
+  if(fn) fn(page); else renderFamilyHome(page);
+}
+
+function fTopBar(title,showBack){
+  var bar=div("f-topbar");
+  if(showBack) add(bar,btn("back-btn","←",back));
+  else add(bar,div("placeholder"));
+  add(bar,el("h1",null,title));
+  var modeBtn=btn("back-btn","☰",function(){S.screen="mode-select";S.hist=["mode-select"];render();});
+  modeBtn.title="Switch Mode"; add(bar,modeBtn);
+  return bar;
+}
+function fNav(active){
+  var nav=div("f-nav");
+  [["🏠","Home","family-home"],["🏥","Hospice","family-hospice"],["📋","Conditions","family-conditions"],
+   ["💊","Meds","family-medications"],["📓","Log","family-symptoms"]].forEach(function(t){
+    var b=btn("f-nav-btn"+(active===t[2]?" on":""),"",function(){ S.screen=t[2]; S.hist=[t[2]]; render(); });
+    add(b,span("",t[0])); add(b,span("",t[1])); add(nav,b);
+  });
+  return nav;
+}
+
+// ── FAMILY HOME ──────────────────────────────────────────────
+function renderFamilyHome(page){
+  add(page,fTopBar("CarePath RN",false));
+  var body=div("f-body");
+  // Patient card
+  var pc=div("f-card","background:linear-gradient(135deg,var(--f-teal),var(--f-sky));border:none;margin-bottom:16px;");
+  pc.innerHTML='<div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.7);margin-bottom:6px">Caring for</div>'
+    +'<div style="font-family:\'Playfair Display\',serif;font-size:30px;font-weight:700;color:white;margin-bottom:8px">'+S.patient.name+'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +S.patient.diagnoses.slice(0,3).map(function(d){return '<span style="background:rgba(255,255,255,.2);border-radius:50px;padding:3px 10px;font-size:15px;font-weight:600;color:white">'+d+'</span>';}).join("")
+    +'</div>';
+  add(body,pc);
+  // Quick guides
+  var qhdr=div("f-label","margin-bottom:10px;margin-top:4px;"); qhdr.textContent="QUICK GUIDES";
+  add(body,qhdr);
+  var grid=div("","display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;");
+  [{icon:"🏥",title:"What Is Hospice?",sub:"Plain-language guide",color:"var(--f-teal)",bg:"var(--f-teal2)",screen:"family-hospice"},
+   {icon:"📊",title:"Stages of Decline",sub:"What to expect",color:"var(--f-sky)",bg:"var(--f-sky2)",screen:"family-stages"},
+   {icon:"❓",title:"Glossary",sub:"Medical terms explained",color:"var(--f-amber)",bg:"var(--f-amber2)",screen:"family-glossary"},
+   {icon:"💬",title:"Questions to Ask",sub:"For doctor visits",color:"#7C3AED",bg:"#F5F3FF",screen:"family-questions"},
+   {icon:"🕊️",title:"Signs of Passing",sub:"What to expect at end of life",color:"var(--f-rose)",bg:"var(--f-rose2)",screen:"family-passing"},
+  ].forEach(function(c){
+    var card=div("f-card","cursor:pointer;padding:16px;border-left:4px solid "+c.color+";background:"+c.bg+";");
+    card.innerHTML='<div style="font-size:28px;margin-bottom:6px">'+c.icon+'</div><div style="font-size:18px;font-weight:700;color:var(--f-pri);font-family:\'Playfair Display\',serif">'+c.title+'</div><div style="font-size:15px;color:var(--f-sec);margin-top:2px">'+c.sub+'</div>';
+    card.onclick=function(){go(c.screen);};
+    add(grid,card);
+  });
+  add(body,grid);
+  // Resources
+  var rhdr=div("f-label","margin-bottom:10px;"); rhdr.textContent="RESOURCES";
+  add(body,rhdr);
+  [{icon:"🧠",title:"Condition Education",sub:"Understand "+S.patient.diagnoses[0],screen:"family-conditions"},
+   {icon:"💊",title:"Medication Explainer",sub:S.patient.medications.length+" medications on file",screen:"family-medications"},
+  ].forEach(function(r){
+    var card=div("f-card fadeUp","display:flex;align-items:center;gap:14px;cursor:pointer;padding:14px 16px;");
+    card.innerHTML='<span style="font-size:32px">'+r.icon+'</span><div style="flex:1"><div style="font-size:19px;font-weight:700;color:var(--f-pri);font-family:\'Playfair Display\',serif">'+r.title+'</div><div style="font-size:17px;color:var(--f-sec);margin-top:2px">'+r.sub+'</div></div><span style="color:var(--f-muted);font-size:24px">›</span>';
+    card.onclick=function(){go(r.screen);};
+    add(body,card);
+  });
+  // Emergency
+  var emBtn=div("f-card","background:var(--f-rose2);border:1.5px solid rgba(192,65,74,.25);cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;");
+  emBtn.innerHTML='<span style="font-size:32px">🆘</span><div style="flex:1"><div style="font-size:19px;font-weight:700;color:var(--f-rose);font-family:\'Playfair Display\',serif">Emergency Profile</div><div style="font-size:17px;color:var(--f-sec);margin-top:2px">Allergies, meds & contacts for first responders</div></div><span style="color:var(--f-rose);font-size:24px">›</span>';
+  emBtn.onclick=function(){go("emergency");};
+  add(body,emBtn);
+  add(page,body);
+  add(page,fNav("family-home"));
+}
+
+
+// ── SIGNS OF PASSING ─────────────────────────────────────────
+function renderFamilyPassing(page){
+  add(page,fTopBar("Signs of Passing",true));
+  var body=div("f-body");
+
+  // Hero
+  var hero=div("f-card","background:linear-gradient(135deg,#4A3728,#6B4C3B);border:none;margin-bottom:16px;");
+  var heroTitle=el("div",{style:"font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:white;line-height:1.3;margin-bottom:10px"},"What to Expect at the End of Life");
+  var heroText=el("div",{style:"font-size:17px;color:rgba(255,255,255,.85);line-height:1.7"},"This is written for families who want to understand what is happening and feel prepared. Knowing what to expect can bring comfort and help you be fully present for your loved one.");
+  add(hero,heroTitle);add(hero,heroText);add(body,hero);
+
+  // Compassion note
+  var note=div("f-card f-card-amber","margin-bottom:16px;");
+  var noteT=el("div",{style:"font-size:17px;font-weight:700;color:var(--f-pri);font-family:'Playfair Display',serif;margin-bottom:6px"},"A Note Before You Read");
+  var noteB=el("div",{style:"font-size:16px;color:var(--f-sec);line-height:1.75"},"Not everyone experiences all of these signs, and they do not always happen in order. This is a natural process. Your presence, your voice, and your touch matter deeply, even at the very end.");
+  add(note,noteT);add(note,noteB);add(body,note);
+
+  var phases=[
+    {title:"Weeks Before",timeframe:"Weeks to days before",icon:"🌿",color:"#2D6A4F",bg:"#D8F3DC",
+     intro:"The body begins to slow down and withdraw energy from things it no longer needs.",
+     signs:[
+      ["Sleeping much more","Your loved one may sleep 16-20 hours a day. This is not a coma — they are resting deeply. The body is conserving energy."],
+      ["Eating and drinking very little","The body no longer needs fuel the way it once did. Do not force food or fluids. Small sips of water on a sponge swab can keep the mouth moist and comfortable."],
+      ["Withdrawing from the world","They may show less interest in news, TV, or conversations. This is natural — their focus is turning inward."],
+      ["Increased confusion or seeing things","They may talk to people who have already passed, or speak about going on a journey. Many families find this comforting. Do not argue or correct — simply be present."],
+      ["Saying goodbye","They may say farewell, express love, or try to resolve unfinished matters. Let them. This is a gift."],
+      ["Restlessness or agitation","Sometimes called terminal restlessness — picking at sheets, trying to get out of bed, repetitive movements. The hospice nurse can help manage this with medication."],
+     ],
+     comfort:"Spend time simply being present. Play meaningful music softly. Tell them who is in the room. Say what needs to be said — it is never too late."},
+    {title:"Days Before",timeframe:"24 to 72 hours",icon:"🌙",color:"#1B4965",bg:"#CAE9FF",
+     intro:"The body is preparing to let go. Changes become more noticeable.",
+     signs:[
+      ["Mottling of the skin","Blotchy purple or reddish patches appear on the knees, feet, and hands — often lacy or marbled. This is caused by blood circulation slowing. It is not painful."],
+      ["Cooling of the hands and feet","The body draws circulation inward to protect vital organs. Hands, feet, and legs may feel cool or cold, even while the face remains warm."],
+      ["Changes in breathing","Breathing may become irregular — faster, then slower, sometimes with pauses of 10-60 seconds. This is called Cheyne-Stokes breathing. It is normal and not distressing to your loved one, even if it is difficult to witness."],
+      ["The death rattle","A gurgling or rattling sound when breathing, caused by secretions in the throat that can no longer be cleared. Repositioning the head slightly can help. The hospice nurse can provide medication to reduce secretions. Your loved one is not choking or in pain."],
+      ["Eyes may be half-open","Eyes may appear glassy or only partially closed. You can gently moisten them with a damp cloth. Keep the room softly lit."],
+      ["Unresponsiveness","They may no longer respond to your voice or touch. Hearing is believed to be the last sense to fade — continue speaking to them. Tell them who is there. Tell them you love them. Tell them it is okay to go."],
+     ],
+     comfort:"Stay close. Hold their hand. Speak softly and calmly. Keep the room quiet and peaceful. It is okay to cry. It is okay to say goodbye."},
+    {title:"Hours Before and the Moment of Passing",timeframe:"Final hours",icon:"🕊",color:"#4A3060",bg:"#E8D5F5",
+     intro:"The final transition is usually very peaceful. Most families describe it as gentle.",
+     signs:[
+      ["Breathing becomes very slow","Breaths may be 30-60 seconds apart. Each one may sound like the last. This can continue for minutes or hours."],
+      ["Jaw relaxes","The mouth may fall slightly open. This is normal and peaceful."],
+      ["The final breath","There is often no dramatic moment — breathing simply stops. The face typically relaxes completely and looks peaceful. There is no gasping or struggle in most cases."],
+      ["After the breath stops","The heart stops within moments. There is no need to rush. You can stay with your loved one as long as you need. Take the time you need to say goodbye."],
+     ],
+     comfort:"There is no right way to be in this moment. Some families pray, some sing, some sit in silence. Some step out — and that is okay. Many people pass in a quiet moment when family briefly leaves the room, as if choosing to go alone."},
+  ];
+
+  phases.forEach(function(phase){
+    var card=div("f-card fadeUp","margin-bottom:14px;padding:0;overflow:hidden;");
+    // Phase header band
+    var hdr=div("","background:"+phase.bg+";padding:16px 18px;");
+    var hdrTop=div("","display:flex;align-items:center;gap:10px;");
+    add(hdrTop,el("span",{style:"font-size:26px"},phase.icon));
+    var hdrInfo=div("");
+    add(hdrInfo,el("div",{style:"font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:"+phase.color+";margin-bottom:2px"},phase.timeframe));
+    add(hdrInfo,el("div",{style:"font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:"+phase.color},phase.title));
+    add(hdrTop,hdrInfo);add(hdr,hdrTop);
+    add(hdr,el("div",{style:"font-size:16px;color:"+phase.color+";line-height:1.65;margin-top:10px"},phase.intro));
+    add(card,hdr);
+    // Signs
+    var signsWrap=div("","padding:14px 18px 4px;");
+    phase.signs.forEach(function(sg){
+      var row=div("","margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--f-border);");
+      add(row,el("div",{style:"font-size:17px;font-weight:700;color:var(--f-pri);font-family:'Playfair Display',serif;margin-bottom:5px"},sg[0]));
+      add(row,el("div",{style:"font-size:16px;color:var(--f-sec);line-height:1.75"},sg[1]));
+      add(signsWrap,row);
+    });
+    add(card,signsWrap);
+    // Comfort tip
+    var tip=div("","background:"+phase.bg+";padding:14px 18px;");
+    add(tip,el("div",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:"+phase.color+";margin-bottom:6px"},"What You Can Do"));
+    add(tip,el("div",{style:"font-size:16px;color:#374151;line-height:1.75"},phase.comfort));
+    add(card,tip);
+    add(body,card);
+  });
+
+  // After passing card
+  var after=div("f-card","background:#F5F0FF;border:1.5px solid rgba(124,58,237,.2);margin-bottom:14px;");
+  add(after,el("div",{style:"font-family:'Playfair Display',serif;font-size:21px;color:var(--f-pri);margin-bottom:10px"},"After Your Loved One Passes"));
+  add(after,el("div",{style:"font-size:16px;color:var(--f-sec);line-height:1.75;margin-bottom:12px"},"You do not need to call anyone immediately. Take the time you need. When you are ready:"));
+  [["Call the hospice nurse first","The hospice nurse must come to pronounce the death. Do not call 911 — this can trigger an unwanted police response. The hospice team will guide you through everything."],
+   ["You have time","The body does not need to be moved immediately. Most funeral homes can be called within a few hours. Take the time you need to say goodbye."],
+   ["Grief looks different for everyone","There is no right way to grieve. Numbness, relief, sadness, and peace are all normal. The hospice team typically provides bereavement support for 13 months after a loss."],
+  ].forEach(function(item){
+    var r=div("","display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;");
+    var dot=el("span",{style:"font-size:18px;flex-shrink:0;color:#7C3AED"},"•");
+    var txt=div("");
+    add(txt,el("div",{style:"font-size:17px;font-weight:700;color:var(--f-pri);margin-bottom:3px"},item[0]));
+    add(txt,el("div",{style:"font-size:16px;color:var(--f-sec);line-height:1.7"},item[1]));
+    add(r,dot);add(r,txt);add(after,r);
+  });
+  add(body,after);
+
+  // Hospice 24/7 reminder
+  var callCard=div("f-card","background:var(--f-rose2);border:1.5px solid rgba(192,65,74,.25);text-align:center;");
+  add(callCard,el("div",{style:"font-size:17px;font-weight:700;color:var(--f-rose);font-family:'Playfair Display',serif;margin-bottom:6px"},"Your Hospice Nurse Is Available 24/7"));
+  add(callCard,el("div",{style:"font-size:16px;color:var(--f-sec);line-height:1.65;margin-bottom:12px"},"You are never alone in this. Call your hospice nurse any time — day or night — with questions, concerns, or when you need support."));
+  add(callCard,el("div",{style:"font-size:15px;font-weight:700;color:var(--f-rose)"},"Call the hospice on-call line anytime"));
+  add(body,callCard);
+
+  add(page,body);
+  add(page,fNav("family-hospice"));
+}
+
+
+// ── HOSPICE EXPLAINER ────────────────────────────────────────
+function renderFamilyHospice(page){
+  add(page,fTopBar("Understanding Hospice",true));
+  var body=div("f-body");
+  var hero=div("f-card","background:linear-gradient(135deg,#0D7C6E,#0F4C5C);border:none;margin-bottom:16px;");
+  hero.innerHTML='<div style="font-family:\'Playfair Display\',serif;font-size:28px;color:white;margin-bottom:8px">What Is Hospice Care?</div><div style="font-size:18px;color:rgba(255,255,255,.85);line-height:1.7">Hospice is a type of care that focuses on <strong style="color:white">comfort and quality of life</strong> rather than curing a disease. It is not giving up — it is choosing to prioritize what matters most.</div>';
+  add(body,hero);
+  // What it includes
+  [
+    {title:"✅ What Hospice Provides",items:["Nurse visits at home — usually several times per week","24/7 on-call nurse line you can call any time","Medications specifically for comfort and pain relief","Medical equipment: hospital bed, wheelchair, oxygen","Social worker support for family stress and planning","Chaplain or spiritual care if desired","Caregiver training — how to help at home","Respite care — short breaks for caregivers"],color:"var(--f-teal)",bg:"var(--f-teal2)"},
+    {title:"❌ Common Myths About Hospice",items:["\"Hospice means they will die sooner\" — Studies show hospice patients often live longer and more comfortably","\"We have to go to a facility\" — Most hospice care happens in the patient's home","\"It costs a lot of money\" — Medicare covers 100% of hospice care with no copays","\"We're giving up\" — You are shifting focus to quality of life, not abandoning treatment","\"We can't change our minds\" — You can leave hospice and return to curative care at any time"],color:"var(--f-rose)",bg:"var(--f-rose2)"},
+  ].forEach(function(sec){
+    var card=div("f-card","border-left:4px solid "+sec.color+";background:"+sec.bg+";margin-bottom:12px;");
+    var t=div("","font-size:19px;font-weight:700;color:var(--f-pri);margin-bottom:10px;font-family:'Playfair Display',serif;"); t.textContent=sec.title; add(card,t);
+    sec.items.forEach(function(item){
+      var row=div("","display:flex;gap:8px;margin-bottom:7px;align-items:flex-start;");
+      row.innerHTML='<span style="color:'+sec.color+';flex-shrink:0;margin-top:2px">•</span><span style="font-size:17px;color:var(--f-sec);line-height:1.6">'+item+'</span>';
+      add(card,row);
+    });
+    add(body,card);
+  });
+  // How to qualify
+  var qual=div("f-card","margin-bottom:12px;");
+  qual.innerHTML='<div style="font-family:\'Playfair Display\',serif;font-size:21px;color:var(--f-pri);margin-bottom:10px">💡 How to Qualify</div><div style="font-size:17px;color:var(--f-sec);line-height:1.7;margin-bottom:10px">Two doctors must certify that the person has <strong>6 months or less to live</strong> if the illness follows its expected course. This is a prognosis — not a guarantee. Many people live longer.</div><div style="background:var(--f-teal2);border-radius:10px;padding:12px;"><div style="font-size:15px;font-weight:700;color:var(--f-teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">What to say to the doctor</div><div style="font-size:17px;color:var(--f-sec);font-style:italic;line-height:1.6">"Does my loved one qualify for hospice care? I\'d like to understand all of our options."</div></div>';
+  add(body,qual);
+  // When to consider
+  var when=div("f-card f-card-amber","margin-bottom:12px;");
+  when.innerHTML='<div style="font-family:\'Playfair Display\',serif;font-size:21px;color:var(--f-pri);margin-bottom:8px">🕐 Signs It May Be Time</div>';
+  ["Frequent hospitalizations that aren't improving the condition","The person is losing weight and eating less despite treatment","Increasing pain or discomfort that's harder to manage","The care team is talking about \"goals of care\"","Your loved one has expressed they don't want more aggressive treatment","Declining function — less able to do daily activities each week"].forEach(function(s){
+    var row=div("","display:flex;gap:8px;margin-bottom:7px;");
+    row.innerHTML='<span style="color:var(--f-amber);flex-shrink:0">•</span><span style="font-size:17px;color:var(--f-sec);line-height:1.6">'+s+'</span>';
+    add(when,row);
+  });
+  add(body,when);
+  add(page,body);
+  add(page,fNav("family-hospice"));
+}
+
+// ── STAGES ───────────────────────────────────────────────────
+function renderFamilyStages(page){
+  add(page,fTopBar("Stages of Decline",true));
+  var body=div("f-body");
+  var intro=div("f-card f-card-teal","margin-bottom:14px;");
+  intro.innerHTML='<div style="font-size:17px;color:var(--f-sec);line-height:1.7">Understanding the stages helps you plan ahead and know what to expect. Everyone progresses differently — these are general patterns, not a strict timeline.</div>';
+  add(body,intro);
+  var stages=[
+    {num:"1–2",label:"Very Early",color:"#16A34A",icon:"🟢",title:"Subtle Changes",
+     desc:"Most people and families don't notice any changes yet. Occasional forgetfulness, misplaced items. Fully independent.",
+     signs:["Occasionally forgets a word or name","May repeat a story once in a while","Passes most cognitive tests","Still driving, managing finances, living independently"],
+     action:"A great time to set up legal documents — power of attorney, healthcare proxy, advance directive. Have an open conversation about future wishes while communication is easy."},
+    {num:"3",label:"Early",color:"#CA8A04",icon:"🟡",title:"Noticeable Forgetfulness",
+     desc:"Family and close friends start to notice changes. May struggle with complex tasks at work or forget acquaintances' names.",
+     signs:["Loses items more frequently","Difficulty with complex planning or work tasks","Forgets names of new people","May feel anxious or withdraw from social situations"],
+     action:"Consider a formal memory evaluation. Start a daily symptom log to share with the doctor. Begin researching in-home support options."},
+    {num:"4–5",label:"Moderate",color:"#EA580C",icon:"🟠",title:"Increased Help Needed",
+     desc:"Your loved one needs more help with daily tasks. May forget recent events but remember older memories clearly.",
+     signs:["Needs help with managing finances and cooking","May forget their address or phone number","Confused about the current date or season","Recognizes close family but may occasionally forget names"],
+     action:"Research in-home care options. Discuss driving safety. Consider a medical alert device. Talk to the doctor about a formal care plan."},
+    {num:"6",label:"Moderately Severe",color:"#DC2626",icon:"🔴",title:"Significant Assistance Required",
+     desc:"Daily activities require significant hands-on help. Personality changes may occur. May not always recognize familiar people.",
+     signs:["Needs help dressing, bathing, and toileting","May experience incontinence","Significant personality or behavioral changes","May not recognize close family members at times"],
+     action:"This is often when families explore memory care facilities or 24-hour in-home care. Ask the doctor directly about hospice eligibility."},
+    {num:"7",label:"Severe",color:"#7C3AED",icon:"🟣",title:"Full-Time Care",
+     desc:"Requires full-time care for all activities. Speech is very limited. This is the stage where hospice care is most appropriate and beneficial.",
+     signs:["Speaks fewer than 6 words per day","Cannot walk without full assistance","Requires complete help with eating","Recurrent infections such as pneumonia are common"],
+     action:"Ask the doctor specifically about hospice. Hospice at this stage focuses on keeping your loved one comfortable and pain-free at home. It is covered 100% by Medicare."},
+  ];
+  stages.forEach(function(s){
+    var card=div("f-card fadeUp","margin-bottom:12px;border-left:5px solid "+s.color+";");
+    var hdr=div("","display:flex;align-items:center;gap:10px;margin-bottom:10px;");
+    hdr.innerHTML='<span style="font-size:25px">'+s.icon+'</span><div><div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:'+s.color+'">Stage '+s.num+' · '+s.label+'</div><div style="font-family:\'Playfair Display\',serif;font-size:21px;color:var(--f-pri)">'+s.title+'</div></div>';
+    add(card,hdr);
+    var desc=div("","font-size:17px;color:var(--f-sec);line-height:1.65;margin-bottom:10px;"); desc.textContent=s.desc; add(card,desc);
+    var sl=div("","font-size:14px;font-weight:700;color:var(--f-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;"); sl.textContent="Signs to watch for"; add(card,sl);
+    s.signs.forEach(function(sg){
+      var r=div("","display:flex;gap:8px;margin-bottom:5px;");
+      r.innerHTML='<span style="color:'+s.color+';flex-shrink:0">•</span><span style="font-size:17px;color:var(--f-sec);line-height:1.5">'+sg+'</span>';
+      add(card,r);
+    });
+    var tip=div("","background:#F8FFFE;border-radius:10px;padding:10px 12px;margin-top:10px;border-left:3px solid "+s.color+";");
+    tip.innerHTML='<div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:'+s.color+';margin-bottom:4px">💡 What to do now</div><div style="font-size:17px;color:var(--f-sec);line-height:1.55">'+s.action+'</div>';
+    add(card,tip);
+    add(body,card);
+  });
+  add(page,body);
+  add(page,fNav("family-hospice"));
+}
+
+// ── GLOSSARY ─────────────────────────────────────────────────
+function renderFamilyGlossary(page){
+  add(page,fTopBar("Medical Terms Explained",true));
+  var body=div("f-body");
+  var intro=div("","font-size:17px;color:var(--f-sec);line-height:1.65;margin-bottom:14px;"); intro.textContent="Every medical word translated into plain English. Tap any term to expand it."; add(body,intro);
+  var terms=[
+    {term:"FAST Scale",icon:"📋",plain:"A checklist doctors use to measure how advanced memory loss is. Stage 7 means the person needs help with almost everything and speaks very few words per day. Stage 7 is typically when hospice eligibility begins."},
+    {term:"Hospice Care",icon:"🏥",plain:"Comfort-focused medical care for people near the end of life. The goal shifts from curing the illness to keeping the person comfortable, pain-free, and at home with family. Completely covered by Medicare."},
+    {term:"Palliative Care",icon:"💊",plain:"Extra support to manage pain and symptoms at any stage of illness. Important difference from hospice: palliative care can happen alongside curative treatment. You do not have to be near the end of life to receive it."},
+    {term:"Advance Directive",icon:"📄",plain:"A legal document where a person writes down their wishes for medical care if they can no longer speak for themselves. Also called a living will. Extremely important to have in place."},
+    {term:"DNR / DNI",icon:"🚫",plain:"Do Not Resuscitate / Do Not Intubate. Instructions that if the heart stops or breathing stops, the medical team should not attempt CPR or place a breathing tube. These are choices the patient or family makes in advance."},
+    {term:"Power of Attorney",icon:"✍️",plain:"A legal document giving someone the authority to make financial decisions (financial POA) or medical decisions (healthcare POA / healthcare proxy) for another person."},
+    {term:"ADL",icon:"🚿",plain:"Activities of Daily Living — basic tasks like bathing, dressing, eating, toileting, and moving. Doctors track which ones a person can still do independently. Losing ADL function is a key hospice eligibility criterion."},
+    {term:"Prognosis",icon:"📅",plain:"A doctor's best estimate of how a disease will progress. A 6-month prognosis means the doctor estimates the person has 6 months or less to live if the illness follows its normal course. This is required for hospice."},
+    {term:"Aspiration Pneumonia",icon:"🫁",plain:"A lung infection caused by accidentally breathing food, liquid, or saliva into the lungs instead of swallowing it. Very common in late-stage dementia. It is one of the qualifying comorbidities for hospice."},
+    {term:"Comorbidity",icon:"🔗",plain:"Having more than one health condition at the same time. For example, dementia plus recurrent pneumonia. Multiple comorbidities generally support hospice eligibility."},
+    {term:"Cachexia",icon:"⚖️",plain:"Significant, unintentional weight loss that cannot be reversed by eating more. It is a sign that the body is no longer able to maintain itself. Weight loss of 10% or more in 6 months is a hospice criterion."},
+    {term:"PPS (Palliative Performance Scale)",icon:"📉",plain:"A scale from 0-100% that measures how well a person can function. A score of 50% or below means the person spends most of the day in bed and needs significant help. This supports hospice eligibility."},
+    {term:"Goals of Care",icon:"🎯",plain:"A conversation between the medical team and family about what the patient would want — whether to focus on aggressive treatment, quality of life, or comfort only. Often happens when a condition is not improving."},
+    {term:"Medicare Hospice Benefit",icon:"💚",plain:"A Medicare program that pays for all hospice services including nursing visits, medications, equipment (hospital bed, wheelchair, oxygen), and family support — at no cost to the patient or family."},
+  ];
+  var openIdx=null;
+  function renderTerms(){
+    body.innerHTML="";
+    var introR=div("","font-size:17px;color:var(--f-sec);line-height:1.65;margin-bottom:14px;"); introR.textContent="Every medical word translated into plain English. Tap any term to expand it."; add(body,introR);
+    terms.forEach(function(t,i){
+      var card=div("f-card","cursor:pointer;margin-bottom:8px;padding:14px 16px;");
+      var hdr=div("","display:flex;align-items:center;gap:12px;");
+      hdr.innerHTML='<span style="font-size:25px">'+t.icon+'</span><div style="flex:1;font-size:19px;font-weight:700;color:var(--f-pri);font-family:\'Playfair Display\',serif">'+t.term+'</div><span style="color:var(--f-muted);font-size:21px;transition:transform .2s;">'+(openIdx===i?'▲':'▼')+'</span>';
+      add(card,hdr);
+      if(openIdx===i){
+        var exp=div("","font-size:17px;color:var(--f-sec);line-height:1.7;margin-top:10px;padding-top:10px;border-top:1px solid var(--f-border);"); exp.textContent=t.plain; add(card,exp);
+      }
+      card.onclick=function(){ openIdx=openIdx===i?null:i; renderTerms(); };
+      add(body,card);
+    });
+  }
+  renderTerms();
+  add(page,body);
+  add(page,fNav("family-hospice"));
+}
+
+// ── CONDITIONS ───────────────────────────────────────────────
+function renderFamilyConditions(page){
+  add(page,fTopBar("Condition Education",true));
+  var body=div("f-body");
+  var conditions={
+    "Dementia / Alzheimer's":{icon:"🧠",color:"#7C3AED",
+      what:"Alzheimer's disease is the most common form of dementia — a progressive brain disorder that gradually destroys memory, thinking skills, and eventually the ability to carry out even the simplest tasks. It is not a normal part of aging.",
+      treatment:"There is currently no cure. Treatment focuses on managing symptoms, maintaining quality of life, and slowing progression. Medications like donepezil (Aricept) and memantine (Namenda) may help symptoms in earlier stages. In later stages, care becomes focused entirely on comfort.",
+      warning:["Sudden worsening of confusion (may signal infection)","Fever or signs of infection — pneumonia is very common","Refusal to eat or drink for more than 24 hours","Signs of pain: grimacing, moaning, restlessness","Significant fall or injury","New inability to swallow safely"],
+      expect:"Alzheimer's typically progresses over 8-10 years from diagnosis, though this varies widely. Later stages involve complete dependence for all daily activities. Hospice is appropriate at Stage 7 when the person speaks fewer than 6 words per day and cannot walk without full assistance."},
+    "Cancer":{icon:"🎗",color:"#DC2626",
+      what:"Cancer occurs when abnormal cells grow uncontrollably and spread to other parts of the body. Advanced or metastatic cancer means it has spread beyond the original site. At this stage, the goal often shifts from curing to controlling and providing comfort.",
+      treatment:"Treatment for advanced cancer may include palliative chemotherapy (to shrink tumors and reduce symptoms, not cure), radiation therapy (for pain relief), surgery (to relieve obstruction), pain management, and ultimately hospice care focused entirely on comfort.",
+      warning:["Uncontrolled pain despite current medications","Shortness of breath at rest","Confusion or sudden personality change","Signs of bleeding or new symptoms","Inability to eat or drink for 48+ hours","High fever"],
+      expect:"Advanced cancer progression varies greatly by cancer type and individual. The care team will discuss prognosis openly. When curative treatments are no longer helping, hospice provides the best quality of life and is covered fully by Medicare."},
+    "Heart Failure":{icon:"❤️",color:"#DC2626",
+      what:"Heart failure means the heart muscle is weakened and cannot pump blood effectively to meet the body's needs. Fluid builds up in the lungs (causing breathlessness) and legs (causing swelling). It is a chronic condition that worsens over time.",
+      treatment:"Treatment includes diuretics (water pills) to remove excess fluid, medications to help the heart pump more efficiently (ACE inhibitors, beta blockers), salt and fluid restrictions, and monitoring daily weights. In advanced heart failure, the focus shifts to managing symptoms and comfort.",
+      warning:["Sudden weight gain of 2-3 lbs in a day or 5 lbs in a week","Increasing shortness of breath — especially at rest or lying flat","New or worsening leg, ankle, or foot swelling","Increasing fatigue — unable to do simple activities","Persistent cough or wheezing","Dizziness or fainting"],
+      expect:"Heart failure is a serious condition with significant impact on quality of life. Advanced heart failure (NYHA Class IV) means severe symptoms at rest. Hospice is appropriate when repeated hospitalizations are not improving the condition and the focus becomes comfort."},
+    "COPD":{icon:"🫁",color:"#EA580C",
+      what:"Chronic Obstructive Pulmonary Disease (COPD) is a progressive lung disease that makes it increasingly difficult to breathe. It includes emphysema and chronic bronchitis. Caused primarily by long-term smoking, it cannot be cured but can be managed.",
+      treatment:"Treatment includes bronchodilator inhalers, steroids, supplemental oxygen, pulmonary rehabilitation, and medications to prevent infections. In severe COPD, exacerbations (sudden worsening episodes) often require hospitalization. Late-stage care focuses on breathlessness management and comfort.",
+      warning:["Sudden worsening of breathlessness beyond normal baseline","Change in color, amount, or thickness of mucus","Increased confusion or unusual drowsiness","Coughing up blood","Inability to complete a sentence without stopping to breathe","Bluish tint to lips or fingertips"],
+      expect:"Advanced COPD significantly limits activity. When resting oxygen levels are consistently low and exacerbations are frequent despite treatment, hospice provides expert breathlessness management and the ability to remain at home rather than in hospital."},
+    "Renal Failure":{icon:"🩺",color:"#1B6CA8",
+      what:"Chronic Kidney Disease (CKD) or renal failure means the kidneys can no longer filter waste products effectively from the blood. When kidney function falls below 15%, it is called end-stage renal disease (ESRD). Without dialysis or a transplant, waste builds up in the body.",
+      treatment:"Treatment may include dialysis (a machine that filters the blood several times per week) or kidney transplant. For patients who choose not to pursue dialysis — or for whom it is no longer beneficial — conservative management focuses on symptom control and quality of life.",
+      warning:["Unusual fatigue or drowsiness beyond baseline","Decreased urine output or no urine","Swelling in legs, feet, or face","Nausea, vomiting, or loss of appetite","Shortness of breath","Confusion or difficulty concentrating"],
+      expect:"End-stage renal failure without dialysis progresses over weeks to months. Hospice provides expert management of symptoms including itching, nausea, breathlessness, and pain — allowing the person to remain comfortable at home or in a care setting of their choice."},
+  };
+  // Find matching conditions from patient profile
+  var patientConds=S.patient.diagnoses.filter(function(d){
+    return Object.keys(conditions).some(function(k){return d.toLowerCase().includes(k.toLowerCase().split(" ")[0]);});
+  });
+  var allConds=Object.keys(conditions);
+  var openCond=S.openCondition;
+  function renderConds(){
+    body.innerHTML="";
+    var intro=div("f-card f-card-teal","margin-bottom:14px;");
+    intro.innerHTML='<div style="font-size:17px;color:var(--f-sec);line-height:1.65">Plain-language explanations for common diagnoses. Tap any condition to learn more.</div>';
+    add(body,intro);
+    allConds.forEach(function(name){
+      var c=conditions[name];
+      var isOpen=openCond===name;
+      var card=div("f-card fadeUp","cursor:pointer;margin-bottom:10px;border-left:4px solid "+c.color+";");
+      var hdr=div("","display:flex;align-items:center;gap:12px;margin-bottom:"+(isOpen?"12px":"0")+";");
+      hdr.innerHTML='<span style="font-size:30px">'+c.icon+'</span><div style="flex:1"><div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--f-pri)">'+name+'</div></div><span style="color:var(--f-muted);font-size:21px">'+(isOpen?'▲':'▼')+'</span>';
+      add(card,hdr);
+      if(isOpen){
+        var secs=[{label:"What It Means",text:c.what},{label:"Typical Treatment",text:c.treatment},{label:"What to Expect",text:c.expect}];
+        secs.forEach(function(s){
+          var sl=div("","font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:"+c.color+";margin-bottom:5px;margin-top:12px;"); sl.textContent=s.label; add(card,sl);
+          var st=div("","font-size:17px;color:var(--f-sec);line-height:1.7;"); st.textContent=s.text; add(card,st);
+        });
+        var wl=div("","font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--f-rose);margin-bottom:6px;margin-top:12px;"); wl.textContent="⚠️ Call the Nurse If You See"; add(card,wl);
+        c.warning.forEach(function(w){
+          var r=div("","display:flex;gap:8px;margin-bottom:5px;");
+          r.innerHTML='<span style="color:var(--f-rose);flex-shrink:0">•</span><span style="font-size:17px;color:var(--f-sec);line-height:1.5">'+w+'</span>';
+          add(card,r);
+        });
+      }
+      card.onclick=function(){S.openCondition=isOpen?null:name; renderConds();};
+      add(body,card);
+    });
+  }
+  renderConds();
+  add(page,body);
+  add(page,fNav("family-conditions"));
+}
+
+// ── QUESTION GENERATOR ────────────────────────────────────────
+function renderFamilyQuestions(page){
+  add(page,fTopBar("Questions to Ask",true));
+  var body=div("f-body");
+  var intro=div("f-card f-card-sky","margin-bottom:14px;");
+  intro.innerHTML='<div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--f-pri);margin-bottom:6px">Come Prepared</div><div style="font-size:17px;color:var(--f-sec);line-height:1.65">These questions are generated based on '+nm()+'\'s diagnoses and situation. Tap any to copy it.</div>';
+  add(body,intro);
+  var sections=[
+    {title:"About the Diagnosis",icon:"🩺",color:"var(--f-sky)",questions:["What stage is "+nm()+"'s condition currently?","What does this stage mean for day-to-day life over the next few months?","What is a realistic prognosis at this point?","What signs should I watch for that mean things are getting worse?"]},
+    {title:"About Hospice Care",icon:"🏥",color:"var(--f-teal)",questions:["Does "+nm()+" qualify for hospice care right now?","What would hospice actually look like for us at home?","If we choose hospice, what treatments would stop?","Can we change our minds and come off hospice if we want?","How do we start the hospice process if we decide to?"]},
+    {title:"About Medications",icon:"💊",color:"#7C3AED",questions:["Which of these medications are for comfort vs. trying to treat the disease?","Are there any medications we could simplify or stop?","What should I do if "+nm()+" refuses medication?","What medications will hospice provide for pain?"]},
+    {title:"About Safety at Home",icon:"🏠",color:"var(--f-amber)",questions:["Is it still safe for "+nm()+" to be at home?","What home modifications would help keep them safe?","When should we start thinking about a care facility?","What should I do if there is a fall?"]},
+    {title:"About My Own Wellbeing",icon:"💛",color:"var(--f-rose)",questions:["What support is available for caregivers like me?","Is there a social worker we can speak with?","What respite care options are available so I can take a break?","Am I doing the right things as a caregiver?"]},
+  ];
+  sections.forEach(function(sec){
+    var card=div("f-card","margin-bottom:12px;border-left:4px solid "+sec.color+";");
+    var hdr=div("","display:flex;align-items:center;gap:10px;margin-bottom:12px;");
+    hdr.innerHTML='<span style="font-size:24px">'+sec.icon+'</span><div style="font-size:19px;font-weight:700;color:var(--f-pri);font-family:\'Playfair Display\',serif">'+sec.title+'</div>';
+    add(card,hdr);
+    sec.questions.forEach(function(q){
+      var qrow=div("","background:#F8FAFC;border-radius:10px;padding:11px 14px;margin-bottom:7px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;");
+      qrow.innerHTML='<span style="color:'+sec.color+';font-size:19px;flex-shrink:0">💬</span><span style="font-size:17px;color:var(--f-pri);line-height:1.6;font-style:italic;flex:1">"'+q+'"</span>';
+      qrow.onclick=function(){
+        if(navigator.clipboard) navigator.clipboard.writeText(q).then(function(){
+          qrow.style.background="var(--f-teal2)"; setTimeout(function(){qrow.style.background="#F8FAFC";},1000);
+        });
+      };
+      add(card,qrow);
+    });
+    add(body,card);
+  });
+  var tip=div("f-card","background:#F5F3FF;border:1.5px solid rgba(124,58,237,.2);");
+  tip.innerHTML='<div style="font-size:17px;color:var(--f-sec);line-height:1.65;text-align:center">💡 Tap any question to copy it to your clipboard to use at appointments</div>';
+  add(body,tip);
+  add(page,body);
+  add(page,fNav("family-conditions"));
+}
+
+// ── MEDICATIONS ──────────────────────────────────────────────
+var MED_DB={
+  "donepezil":{"what":"Donepezil is a cholinesterase inhibitor that works by preventing the breakdown of acetylcholine, a chemical that helps nerve cells communicate. It helps maintain memory and cognitive function.","why":"Prescribed to help slow the progression of Alzheimer's symptoms. It does not cure or stop the disease, but can improve day-to-day function in early to moderate stages.","sideEffects":["Nausea and vomiting (especially when first starting)","Diarrhea","Muscle cramps","Insomnia — often best taken in the morning","Slowed heart rate (rare but important)"],"warning":["Unusual heart rhythm or fainting","Severe nausea that prevents eating","Worsening confusion that seems sudden"]},
+  "memantine":{"what":"Memantine regulates glutamate — a brain chemical involved in learning and memory. It works differently than donepezil and is often prescribed together with it.","why":"Used in moderate to severe Alzheimer's to help with daily function, memory, and behavior. May reduce agitation and improve the ability to carry out daily activities.","sideEffects":["Dizziness","Headache","Confusion (usually temporary when starting)","Constipation"],"warning":["Sudden increase in confusion","Severe dizziness or falls","New agitation or hallucinations"]},
+  "lisinopril":{"what":"Lisinopril is an ACE inhibitor — a medication that relaxes blood vessels, making it easier for the heart to pump blood.","why":"Commonly prescribed for high blood pressure, heart failure, or to protect the kidneys in diabetes. Helps reduce strain on the heart.","sideEffects":["Persistent dry cough (very common)","Dizziness when standing up quickly","Elevated potassium levels","Low blood pressure"],"warning":["Swelling of face, lips, or throat — seek emergency care immediately","Severe dizziness or fainting","Significantly reduced urine output"]},
+  "furosemide":{"what":"Furosemide (Lasix) is a diuretic — commonly called a water pill. It causes the kidneys to remove excess fluid from the body through urine.","why":"Used in heart failure, kidney disease, or liver disease to remove excess fluid buildup (edema) from the legs, lungs, and body.","sideEffects":["Frequent urination","Dizziness from fluid loss","Low potassium levels — may need supplements","Sensitivity to sunlight"],"warning":["Sudden weight loss of more than 2 lbs in a day","Severe dizziness or fainting","Muscle cramps or weakness (sign of low potassium)","Significantly reduced urine despite taking the medication"]},
+  "morphine":{"what":"Morphine is an opioid pain medication that works by binding to pain receptors in the brain and spinal cord. It is one of the most effective medications for managing moderate to severe pain and breathlessness.","why":"Used in hospice and palliative care to manage pain, severe breathlessness, and agitation at end of life. At the doses used in hospice, it reduces suffering without hastening death.","sideEffects":["Drowsiness and sedation","Constipation — almost universal, requires a bowel regimen","Nausea when first starting","Dry mouth"],"warning":["Breathing rate drops below 8-10 breaths per minute","Unresponsive or very difficult to wake","Pinpoint pupils with confusion — contact the hospice nurse"]},
+};
+function renderFamilyMedications(page){
+  add(page,fTopBar("Medication Explainer",true));
+  var body=div("f-body");
+  var intro=div("f-card f-card-teal","margin-bottom:14px;");
+  intro.innerHTML='<div style="font-size:17px;color:var(--f-sec);line-height:1.65">Plain-language explanations for each medication. Tap any medication to learn what it does and what to watch for.</div>';
+  add(body,intro);
+  S.patient.medications.forEach(function(med){
+    var lk=med.toLowerCase().split(" ")[0].replace(/[^a-z]/g,"");
+    var info=MED_DB[lk]||{what:"This medication is used as part of "+nm()+"'s care plan. Ask the doctor or nurse for a plain-language explanation specific to their situation.",why:"The prescribing physician determined this medication is appropriate for "+nm()+"'s condition.",sideEffects:["Ask the prescribing pharmacist for a complete side effect profile."],warning:["Any sudden or unusual changes after starting a new medication should be reported to the nurse."]};
+    var isOpen=S.openMed===med;
+    var card=div("f-card fadeUp","cursor:pointer;margin-bottom:10px;border-left:4px solid var(--f-teal);");
+    var hdr=div("","display:flex;align-items:center;gap:12px;margin-bottom:"+(isOpen?"10px":"0")+";");
+    hdr.innerHTML='<span style="font-size:28px">💊</span><div style="flex:1"><div style="font-family:\'Playfair Display\',serif;font-size:19px;color:var(--f-pri)">'+med+'</div></div><span style="color:var(--f-muted);font-size:21px">'+(isOpen?'▲':'▼')+'</span>';
+    add(card,hdr);
+    if(isOpen){
+      [["What It Does",info.what,"var(--f-teal)"],["Why Prescribed",info.why,"var(--f-sky)"]].forEach(function(s){
+        var sl=div("","font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:"+s[2]+";margin-bottom:5px;margin-top:10px;"); sl.textContent=s[0]; add(card,sl);
+        var st=div("","font-size:17px;color:var(--f-sec);line-height:1.7;"); st.textContent=s[1]; add(card,st);
+      });
+      var sel=div("","font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--f-amber);margin-bottom:6px;margin-top:10px;"); sel.textContent="Common Side Effects to Know"; add(card,sel);
+      info.sideEffects.forEach(function(s){
+        var r=div("","display:flex;gap:8px;margin-bottom:5px;");
+        r.innerHTML='<span style="color:var(--f-amber);flex-shrink:0">•</span><span style="font-size:17px;color:var(--f-sec);line-height:1.5">'+s+'</span>';
+        add(card,r);
+      });
+      var wl=div("","font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--f-rose);margin-bottom:6px;margin-top:10px;"); wl.textContent="⚠️ Alert the Nurse If You See"; add(card,wl);
+      info.warning.forEach(function(w){
+        var r=div("","display:flex;gap:8px;margin-bottom:5px;");
+        r.innerHTML='<span style="color:var(--f-rose);flex-shrink:0">•</span><span style="font-size:17px;color:var(--f-sec);line-height:1.5">'+w+'</span>';
+        add(card,r);
+      });
+    }
+    card.onclick=function(){S.openMed=isOpen?null:med; render();};
+    add(body,card);
+  });
+  add(page,body);
+  add(page,fNav("family-medications"));
+}
+
+// ── SYMPTOM LOG ───────────────────────────────────────────────
+function renderFamilySymptoms(page){
+  add(page,fTopBar("Daily Observation Log",true));
+  var body=div("f-body");
+  var today=new Date().toISOString().split("T")[0];
+  var todayEntry=S.fSymptoms.find(function(e){return e.date===today;});
+  if(!todayEntry){
+    var form=div("f-card","margin-bottom:12px;");
+    form.innerHTML='<div style="font-family:\'Playfair Display\',serif;font-size:24px;color:var(--f-pri);margin-bottom:4px">Today\'s Observations</div><div style="font-size:17px;color:var(--f-muted);margin-bottom:16px;">'+new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})+'</div>';
+    var syms=[{key:"pain",label:"Pain Level",emoji:"😣"},{key:"confusion",label:"Confusion",emoji:"😕"},{key:"breathing",label:"Breathing Difficulty",emoji:"😮‍💨"},{key:"appetite",label:"Appetite",emoji:"🍽"},{key:"sleep",label:"Sleep Quality",emoji:"😴"}];
+    var entry={pain:0,confusion:0,breathing:0,appetite:0,sleep:0,notes:""};
+    syms.forEach(function(s){
+      var sl=div("","margin-bottom:14px;");
+      var lbl=div("","display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;");
+      lbl.innerHTML='<span style="font-size:17px;font-weight:600;color:var(--f-pri)">'+s.emoji+' '+s.label+'</span><span id="val-'+s.key+'" style="font-size:17px;font-weight:700;color:var(--f-teal)">'+entry[s.key]+'/10</span>';
+      add(sl,lbl);
+      var dots=div("pain-dots");
+      for(var i=1;i<=10;i++){(function(i){
+        var colors=i<=3?"#16A34A":i<=6?"#D97706":"#DC2626";
+        var d=div("pain-dot","background:"+colors+";");
+        d.textContent=i;
+        d.onclick=function(){
+          entry[s.key]=i;
+          dots.querySelectorAll(".pain-dot").forEach(function(dd,di){dd.classList.toggle("sel",di===i-1);});
+          document.getElementById("val-"+s.key).textContent=i+"/10";
+        };
+        add(dots,d);
+      })(i);}
+      add(sl,dots);
+      add(form,sl);
+    });
+    var nl=div("","font-size:17px;font-weight:600;color:var(--f-sec);margin-bottom:6px;"); nl.textContent="Additional Notes"; add(form,nl);
+    var notesTa=ta("f-input","e.g. Slept well, recognized family, refused breakfast","",function(){entry.notes=this.value;});
+    notesTa.style.padding="13px 16px"; notesTa.style.borderRadius="12px"; notesTa.style.border="1.5px solid var(--f-border)"; notesTa.style.background="white"; notesTa.style.fontSize="15px"; notesTa.style.marginBottom="12px";
+    add(form,notesTa);
+    var saveBtn=btn("f-btn f-btn-primary","Save Today's Entry",function(){
+      entry.date=today; entry.id=Date.now()+"";
+      S.fSymptoms.unshift(entry); save("cp_symptoms",S.fSymptoms); render();
+    });
+    add(form,saveBtn);
+    add(body,form);
+  } else {
+    var done=div("f-card f-card-teal","text-align:center;margin-bottom:12px;");
+    done.innerHTML='<div style="font-size:36px;margin-bottom:6px">✅</div><div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--f-pri)">Today\'s Entry Saved</div><div style="font-size:17px;color:var(--f-muted);margin-top:4px">Come back tomorrow to log again.</div>';
+    add(body,done);
+  }
+  if(S.fSymptoms.length>0){
+    var hl=div("f-label","margin-bottom:10px;"); hl.textContent="LOG HISTORY"; add(body,hl);
+    S.fSymptoms.slice(0,10).forEach(function(e){
+      var card=div("f-card","margin-bottom:8px;");
+      var dt=new Date(e.date+"T00:00:00");
+      var top=div("","display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;");
+      top.innerHTML='<span style="font-size:17px;font-weight:700;color:var(--f-pri)">'+dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})+'</span>';
+      add(card,top);
+      var scores=div("","display:flex;gap:6px;flex-wrap:wrap;");
+      [{k:"pain",l:"Pain",e:"😣"},{k:"confusion",l:"Confusion",e:"😕"},{k:"breathing",l:"Breathing",e:"😮‍💨"}].forEach(function(s){
+        if(e[s.k]>0){
+          var col=e[s.k]<=3?"#16A34A":e[s.k]<=6?"#D97706":"#DC2626";
+          var t=div("","background:#F8FAFC;border-radius:8px;padding:4px 10px;font-size:15px;color:"+col+";font-weight:600;");
+          t.textContent=s.e+" "+s.l+": "+e[s.k]; add(scores,t);
+        }
+      });
+      add(card,scores);
+      if(e.notes){var n=div("","font-size:15px;color:var(--f-muted);margin-top:6px;font-style:italic;line-height:1.5;"); n.textContent=e.notes; add(card,n);}
+      add(body,card);
+    });
+  }
+  add(page,body);
+  add(page,fNav("family-symptoms"));
+}
+</script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  RN MODE ROUTER
+// ═══════════════════════════════════════════════════════
+function renderRN(page){
+  page.className="page r-page";
+  var screens={
+    "rn-home":renderRNHome,
+    "rn-scales":renderRNScaleHub,
+    "rn-scale-entry":renderRNScaleEntry,
+    "rn-sbar":renderRNSBAR,
+    "rn-calculators":renderRNCalcs,
+    "rn-lcd":renderRNLCD,
+    "rn-piref":renderRNPIRef,
+  };
+  var fn=screens[S.screen];
+  if(fn) fn(page); else renderRNHome(page);
+}
+function rTopBar(title,showBack){
+  var bar=div("r-topbar");
+  if(showBack) add(bar,btn("back-btn","←",back));
+  else add(bar,div("placeholder"));
+  add(bar,el("h1",null,title));
+  var modeBtn=btn("back-btn","☰",function(){S.screen="mode-select";S.hist=["mode-select"];render();});
+  add(bar,modeBtn);
+  return bar;
+}
+function rNav(active){
+  var nav=div("r-nav");
+  [["🏠","Home","rn-home"],["📊","Scales","rn-scales"],["📋","SBAR","rn-sbar"],["🧮","Calc","rn-calculators"],["🏥","LCD","rn-lcd"]].forEach(function(t){
+    var b=btn("r-nav-btn"+(active===t[2]?" on":""),"",function(){S.screen=t[2];S.hist=[t[2]];render();});
+    add(b,span("",t[0])); add(b,span("",t[1])); add(nav,b);
+  });
+  return nav;
+}
+
+// ── RN HOME (redirect to scales) ─────────────────────────────
+function renderRNHome(page){
+  add(page,rTopBar("CarePath RN RN",false));
+  var body=div("r-body");
+
+  // Identity card
+  var id=div("r-card","background:linear-gradient(135deg,#1D4ED8,#7C3AED);border:none;margin-bottom:14px;");
+  add(id,el("div",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-bottom:6px"},"Clinical Decision Support"));
+  add(id,el("div",{style:"font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:white;margin-bottom:6px"},"Built by an RN. For Hospice Nurses."));
+  add(id,el("div",{style:"font-size:15px;color:rgba(255,255,255,.8);line-height:1.65"},"Everything a hospice nurse needs at the bedside — scales, LCD criteria, SBAR, and calculators — in one place, offline, on any device."));
+  add(body,id);
+
+  // Why use this
+  var wl=div("r-label","margin-bottom:8px;"); wl.textContent="WHY NURSES USE THIS"; add(body,wl);
+  [
+    {icon:"📋",title:"Recertification at Your Fingertips",desc:"CMS LCD criteria for every major hospice diagnosis. Know exactly what to document to support continued eligibility — without digging through a binder."},
+    {icon:"⏱",title:"Scales in Under 60 Seconds",desc:"FAST, PPS, GCS, Braden, NEWS2 and 6 more. Tap through guided entry, get a scored result with clinical interpretation. Required CMS documentation, done fast."},
+    {icon:"📞",title:"Never Get Caught Off Guard on a Call",desc:"SBAR generator auto-fills from the patient profile. Structured, clear, professional — whether it is 2pm or 2am."},
+    {icon:"🧮",title:"Bedside Calculators",desc:"IV drip rates, weight-based dosing, fluid balance, CrCl for medication adjustments. No more mental math in a patient home."},
+    {icon:"👨‍👩‍👧",title:"Share with the Family",desc:"Hand a family member your phone and switch to Family Mode. Plain-language hospice education, medication explainers, and a daily symptom log — all in the same app."},
+  ].forEach(function(w){
+    var card=div("r-card","display:flex;gap:14px;align-items:flex-start;margin-bottom:8px;");
+    add(card,el("span",{style:"font-size:26px;flex-shrink:0"},w.icon));
+    var info=div("","flex:1;");
+    add(info,el("div",{style:"font-size:16px;font-weight:700;color:var(--r-pri);margin-bottom:4px"},w.title));
+    add(info,el("div",{style:"font-size:14px;color:var(--r-sec);line-height:1.65"},w.desc));
+    add(card,info);
+    add(body,card);
+  });
+
+  // Quick launch
+  var ql=div("r-label","margin-bottom:8px;margin-top:4px;"); ql.textContent="QUICK LAUNCH"; add(body,ql);
+  var grid=div("","display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;");
+  [{icon:"📊",label:"Clinical Scales",screen:"rn-scales",color:"var(--r-blue)"},{icon:"🏥",label:"LCD Criteria",screen:"rn-lcd",color:"var(--r-teal)"},{icon:"📋",label:"SBAR Generator",screen:"rn-sbar",color:"var(--r-purple)"},{icon:"🧮",label:"Calculators",screen:"rn-calculators",color:"var(--r-amber)"}].forEach(function(q){
+    var c=div("r-card","cursor:pointer;padding:14px;border-left:3px solid "+q.color+";");
+    add(c,el("span",{style:"font-size:24px;display:block;margin-bottom:6px"},q.icon));
+    add(c,el("div",{style:"font-size:15px;font-weight:700;color:var(--r-pri)"},q.label));
+    c.onclick=function(){S.screen=q.screen;S.hist=[q.screen];render();};
+    add(grid,c);
+  });
+  add(body,grid);
+  add(page,body);
+  add(page,rNav("rn-home"));
+}
+
+// ═══════════════════════════════════════════════════════
+//  CLINICAL SCALES
+// ═══════════════════════════════════════════════════════
+var SCALES={
+  fast:{name:"FAST Scale",full:"Functional Assessment Staging Tool",color:"var(--r-purple)",icon:"🧠",
+    categories:[
+      {name:"Stage",items:[
+        {s:1,label:"Normal Adult",desc:"No subjective or objective functional decrement"},
+        {s:2,label:"Subjective Deficit",desc:"Complains of forgetting names, locations of objects"},
+        {s:3,label:"Early Incipient",desc:"Decreased job functioning, difficulty with travel to new locations — 2-year duration expected"},
+        {s:4,label:"Late Incipient",desc:"Decreased ability to handle complex tasks (finances, hosting dinner parties) — 2-year duration"},
+        {s:5,label:"Mild Dementia",desc:"Requires supervision selecting proper clothing for weather; may need reminders"},
+        {s:"6a",label:"Mod-Severe: Dressing",desc:"Occasionally or more frequently cannot dress properly without assistance"},
+        {s:"6b",label:"Mod-Severe: Bathing",desc:"Unable to bathe properly without assistance — often fear of bathing"},
+        {s:"6c",label:"Mod-Severe: Toileting",desc:"Unable to toilet properly; may forget to flush, wipe improperly"},
+        {s:"6d",label:"Mod-Severe: Urinary",desc:"Urinary incontinence — occasionally or more frequently"},
+        {s:"6e",label:"Mod-Severe: Bowel",desc:"Fecal incontinence — occasionally or more frequently"},
+        {s:"7a",label:"★ HOSPICE THRESHOLD ★",desc:"Ability to speak limited to ≤6 intelligible words per day — PRIMARY hospice criterion"},
+        {s:"7b",label:"Severe: Single Word",desc:"Ability limited to single intelligible word in an average day"},
+        {s:"7c",label:"Severe: Non-Ambulatory",desc:"Non-ambulatory — unable to walk without personal assistance"},
+        {s:"7d",label:"Severe: Non-Sitter",desc:"Unable to sit up independently without assistance"},
+        {s:"7e",label:"Severe: No Smile",desc:"Loss of ability to smile"},
+        {s:"7f",label:"Severe: Non-Responsive",desc:"Loss of ability to hold head up independently"},
+      ]}
+    ],
+    score:function(sel){
+      if(!sel.stage) return null;
+      var st=sel.stage; var num=parseFloat(st);
+      if(st==="7a"||st==="7b"||st==="7c"||st==="7d"||st==="7e"||st==="7f") return {score:"Stage "+st.toUpperCase(),interp:"Severe — HOSPICE ELIGIBLE",color:"var(--r-red)",alert:true};
+      if(st==="6a"||st==="6b"||st==="6c"||st==="6d"||st==="6e") return {score:"Stage "+st.toUpperCase(),interp:"Moderately Severe — Assess for hospice eligibility with comorbidities",color:"var(--r-amber)"};
+      if(num===5) return {score:"Stage 5",interp:"Mild Dementia",color:"var(--r-amber)"};
+      if(num===4) return {score:"Stage 4",interp:"Late Incipient",color:"var(--r-green)"};
+      return {score:"Stage "+st,interp:"Early / Normal",color:"var(--r-green)"};
+    }},
+  pps:{name:"PPS",full:"Palliative Performance Scale v2",color:"var(--r-teal)",icon:"📉",
+    categories:[{name:"PPS Score",items:[
+      {s:10,label:"100% — Normal",desc:"Normal activity and work; no evidence of disease"},
+      {s:9,label:"90% — Normal Activity",desc:"Normal activity; minor signs of disease"},
+      {s:8,label:"80% — Normal with Effort",desc:"Normal activity with effort; some evidence of disease"},
+      {s:7,label:"70% — Reduced",desc:"Unable to do normal work; significant disease"},
+      {s:6,label:"60% — Reduced",desc:"Unable to do hobbies; significant disease; occasional assistance"},
+      {s:5,label:"50% — Mainly Sit/Lie ⚠️",desc:"Unable to do any work; extensive disease; considerable assistance needed"},
+      {s:4,label:"40% — Mainly in Bed ⚠️",desc:"Unable to do most activity; extensive disease; mainly assisted"},
+      {s:3,label:"30% — Bed Bound ⚠️",desc:"Unable to do any activity; extensive disease; total care"},
+      {s:2,label:"20% — Bed Bound ⚠️",desc:"Unable to do any activity; extensive disease; total care; reduced intake"},
+      {s:1,label:"10% — Bed Bound ⚠️",desc:"Drowsy or coma; total care; minimal intake"},
+      {s:0,label:"0% — Death",desc:"Death"},
+    ]}],
+    score:function(sel){
+      var v=sel.pps; if(v===undefined||v===null) return null;
+      var pct=v*10;
+      if(pct<=40) return {score:pct+"%",interp:"Hospice eligible — PPS ≤40% supports LCD criteria",color:"var(--r-red)",alert:true};
+      if(pct<=50) return {score:pct+"%",interp:"Borderline — Consider hospice assessment",color:"var(--r-amber)"};
+      return {score:pct+"%",interp:"Not yet hospice-level — Monitor trends",color:"var(--r-green)"};
+    }},
+  gcs:{name:"GCS",full:"Glasgow Coma Scale",color:"var(--r-blue)",icon:"🧠",
+    categories:[
+      {name:"Eye Opening",key:"E",items:[{s:4,label:"4 — Spontaneous",desc:"Opens eyes spontaneously"},{s:3,label:"3 — To Sound",desc:"Opens eyes in response to voice"},{s:2,label:"2 — To Pain",desc:"Opens eyes in response to painful stimuli"},{s:1,label:"1 — None",desc:"Does not open eyes"}]},
+      {name:"Verbal Response",key:"V",items:[{s:5,label:"5 — Oriented",desc:"Oriented; converses normally"},{s:4,label:"4 — Confused",desc:"Confused; disoriented"},{s:3,label:"3 — Words",desc:"Speaks words but not coherently"},{s:2,label:"2 — Sounds",desc:"Makes sounds but no words"},{s:1,label:"1 — None",desc:"Makes no sounds"}]},
+      {name:"Motor Response",key:"M",items:[{s:6,label:"6 — Obeys Commands",desc:"Follows simple commands"},{s:5,label:"5 — Localizes Pain",desc:"Moves purposefully toward painful stimuli"},{s:4,label:"4 — Withdrawal",desc:"Pulls away from pain"},{s:3,label:"3 — Flexion",desc:"Decorticate posturing"},{s:2,label:"2 — Extension",desc:"Decerebrate posturing"},{s:1,label:"1 — None",desc:"No motor response"}]},
+    ],
+    score:function(sel){
+      var t=(sel.E||0)+(sel.V||0)+(sel.M||0); if(!sel.E&&!sel.V&&!sel.M) return null;
+      if(t<=8) return {score:t+"/15",interp:"Severe — Coma (GCS ≤8). Requires immediate intervention. Consider intubation.",color:"var(--r-red)",alert:true};
+      if(t<=12) return {score:t+"/15",interp:"Moderate brain injury — Close monitoring required",color:"var(--r-amber)"};
+      return {score:t+"/15",interp:"Mild — Monitor for deterioration",color:"var(--r-green)"};
+    }},
+  braden:{name:"Braden",full:"Braden Scale for Pressure Injury Risk",color:"var(--r-teal)",icon:"🛏",
+    categories:[
+      {name:"Sensory Perception",key:"SP",items:[{s:1,label:"1 — Completely Limited",desc:"Unresponsive to painful stimuli"},{s:2,label:"2 — Very Limited",desc:"Responds only to pain; cannot communicate discomfort"},{s:3,label:"3 — Slightly Limited",desc:"Responds to verbal commands; some sensory impairment"},{s:4,label:"4 — No Impairment",desc:"Responds to verbal commands; no sensory deficit"}]},
+      {name:"Moisture",key:"MO",items:[{s:1,label:"1 — Constantly Moist",desc:"Skin is kept moist almost constantly by perspiration, urine"},{s:2,label:"2 — Very Moist",desc:"Skin is often moist; linen must be changed at least every 8 hours"},{s:3,label:"3 — Occasionally Moist",desc:"Skin is occasionally moist"},{s:4,label:"4 — Rarely Moist",desc:"Skin is usually dry; routine diaper/linen changes"}]},
+      {name:"Activity",key:"AC",items:[{s:1,label:"1 — Bedfast",desc:"Confined to bed"},{s:2,label:"2 — Chairfast",desc:"Ability to walk severely limited; cannot bear own weight"},{s:3,label:"3 — Walks Occasionally",desc:"Walks occasionally during day but for very short distances"},{s:4,label:"4 — Walks Frequently",desc:"Walks outside room at least twice a day"}]},
+      {name:"Mobility",key:"MB",items:[{s:1,label:"1 — Completely Immobile",desc:"Does not make even slight changes in body or extremity position"},{s:2,label:"2 — Very Limited",desc:"Makes occasional slight changes but unable to make frequent or significant changes"},{s:3,label:"3 — Slightly Limited",desc:"Makes frequent though slight changes in body position"},{s:4,label:"4 — No Limitation",desc:"Makes major and frequent changes without assistance"}]},
+      {name:"Nutrition",key:"NU",items:[{s:1,label:"1 — Very Poor",desc:"Never eats a complete meal; rarely eats more than ⅓ of food offered"},{s:2,label:"2 — Probably Inadequate",desc:"Rarely eats a complete meal; generally eats ½ of food offered"},{s:3,label:"3 — Adequate",desc:"Eats over half of most meals"},{s:4,label:"4 — Excellent",desc:"Eats most of every meal; never refuses a meal"}]},
+      {name:"Friction & Shear",key:"FS",items:[{s:1,label:"1 — Problem",desc:"Requires moderate to maximum assistance; complete lifting without sliding not possible"},{s:2,label:"2 — Potential Problem",desc:"Moves feebly or requires minimum assistance"},{s:3,label:"3 — No Apparent Problem",desc:"Moves in bed and in chair independently; sufficient muscle strength"}]},
+    ],
+    score:function(sel){
+      var keys=["SP","MO","AC","MB","NU","FS"]; var t=0; var hasAll=true;
+      keys.forEach(function(k){if(sel[k]) t+=sel[k]; else hasAll=false;});
+      if(!hasAll) return null;
+      if(t<=9) return {score:t+"/23",interp:"Very High Risk — Implement intensive prevention protocol",color:"var(--r-red)",alert:true};
+      if(t<=12) return {score:t+"/23",interp:"High Risk — Turning q2h, pressure-redistributing surface, barrier cream",color:"var(--r-red)"};
+      if(t<=14) return {score:t+"/23",interp:"Moderate Risk — Turning schedule, skin assessment with each care",color:"var(--r-amber)"};
+      if(t<=18) return {score:t+"/23",interp:"Mild Risk — Education, standard prevention, monitor",color:"var(--r-amber)"};
+      return {score:t+"/23",interp:"No Risk — Continue standard skin care",color:"var(--r-green)"};
+    }},
+  morse:{name:"Morse Fall",full:"Morse Fall Scale",color:"var(--r-amber)",icon:"🚶",
+    categories:[
+      {name:"History of Falling",key:"HF",items:[{s:25,label:"25 — Yes",desc:"Has fallen in the past 3 months"},{s:0,label:"0 — No",desc:"No history of falls in past 3 months"}]},
+      {name:"Secondary Diagnosis",key:"SD",items:[{s:15,label:"15 — Yes",desc:"More than one medical diagnosis"},{s:0,label:"0 — No",desc:"Single medical diagnosis"}]},
+      {name:"Ambulatory Aid",key:"AA",items:[{s:30,label:"30 — Furniture",desc:"Holds onto furniture when walking"},{s:15,label:"15 — Crutches/Cane/Walker",desc:"Uses crutch, cane, or walker"},{s:0,label:"0 — None/Bedrest/Nurse",desc:"None, bed rest, or assisted by nurse"}]},
+      {name:"IV / Heparin Lock",key:"IV",items:[{s:20,label:"20 — Yes",desc:"IV access or heparin/saline lock present"},{s:0,label:"0 — No",desc:"No IV access"}]},
+      {name:"Gait",key:"GA",items:[{s:20,label:"20 — Impaired",desc:"Short steps, shuffles, difficulty rising from chair"},{s:10,label:"10 — Weak",desc:"Stooped but able to lift head while walking"},{s:0,label:"0 — Normal/Bedrest",desc:"Normal, on bed rest, or in wheelchair"}]},
+      {name:"Mental Status",key:"MS",items:[{s:15,label:"15 — Overestimates / Forgets Limitations",desc:"Not aware of physical limitations"},{s:0,label:"0 — Oriented to own ability",desc:"Consistent self-assessment of ability"}]},
+    ],
+    score:function(sel){
+      var keys=["HF","SD","AA","IV","GA","MS"]; var t=0; var hasAll=true;
+      keys.forEach(function(k){if(sel[k]!==undefined) t+=sel[k]; else hasAll=false;});
+      if(!hasAll) return null;
+      if(t>=45) return {score:t,interp:"High Risk — Implement fall prevention protocol: bed alarm, hourly rounding, non-slip footwear",color:"var(--r-red)",alert:true};
+      if(t>=25) return {score:t,interp:"Medium Risk — Standard fall prevention measures",color:"var(--r-amber)"};
+      return {score:t,interp:"Low Risk — Routine care",color:"var(--r-green)"};
+    }},
+  cam:{name:"CAM",full:"Confusion Assessment Method",color:"var(--r-blue)",icon:"🔮",
+    categories:[
+      {name:"Feature 1: Acute Onset & Fluctuation",key:"F1",items:[{s:1,label:"Present",desc:"Is there evidence of an acute change in mental status from baseline? Does the behavior fluctuate during the day?"},{s:0,label:"Absent",desc:"No acute change or fluctuating course"}]},
+      {name:"Feature 2: Inattention",key:"F2",items:[{s:1,label:"Present",desc:"Did the patient have difficulty focusing attention? Easily distracted? Difficulty keeping track of what was said?"},{s:0,label:"Absent",desc:"No significant inattention"}]},
+      {name:"Feature 3: Disorganized Thinking",key:"F3",items:[{s:1,label:"Present",desc:"Was the patient's thinking disorganized? Incoherent conversation? Unpredictable switching of subjects?"},{s:0,label:"Absent",desc:"No disorganized thinking"}]},
+      {name:"Feature 4: Altered Level of Consciousness",key:"F4",items:[{s:1,label:"Present",desc:"Overall level of consciousness: alert, vigilant, lethargic, stupor, or coma (anything other than alert = present)"},{s:0,label:"Absent",desc:"Alert and oriented (score does not equal CAM positive alone)"}]},
+    ],
+    score:function(sel){
+      if(sel.F1===undefined||sel.F2===undefined) return null;
+      var pos=(sel.F1===1&&sel.F2===1&&(sel.F3===1||sel.F4===1));
+      if(pos) return {score:"POSITIVE",interp:"CAM Positive — Delirium present. Identify and treat underlying cause. Implement non-pharmacologic interventions.",color:"var(--r-red)",alert:true};
+      return {score:"NEGATIVE",interp:"CAM Negative — Delirium not detected. Continue monitoring.",color:"var(--r-green)"};
+    }},
+  rass:{name:"RASS",full:"Richmond Agitation-Sedation Scale",color:"var(--r-purple)",icon:"😴",
+    categories:[{name:"Level of Sedation/Agitation",key:"RS",items:[
+      {s:4,label:"+4 — Combative",desc:"Overtly combative or violent; immediate danger to staff"},
+      {s:3,label:"+3 — Very Agitated",desc:"Pulls or removes tubes/catheters; aggressive"},
+      {s:2,label:"+2 — Agitated",desc:"Frequent non-purposeful movement; fights ventilator"},
+      {s:1,label:"+1 — Restless",desc:"Anxious or apprehensive but not aggressive"},
+      {s:0,label:"0 — Alert & Calm",desc:"Alert and calm (target for most patients)"},
+      {s:-1,label:"-1 — Drowsy",desc:"Briefly awakens to voice; eye opening >10 seconds"},
+      {s:-2,label:"-2 — Light Sedation",desc:"Eye opening briefly to voice (<10 sec)"},
+      {s:-3,label:"-3 — Moderate Sedation",desc:"Movement or eye opening to voice, no eye contact"},
+      {s:-4,label:"-4 — Deep Sedation",desc:"No response to voice; movement or eye opening to physical stimulation"},
+      {s:-5,label:"-5 — Unarousable",desc:"No response to voice or physical stimulation"},
+    ]}],
+    score:function(sel){
+      if(sel.RS===undefined) return null;
+      var v=sel.RS;
+      if(v>=2) return {score:v>0?"+"+v:v,interp:"Agitated — Assess for pain, positioning, environment. Consider pharmacologic intervention.",color:"var(--r-red)",alert:true};
+      if(v<=-3) return {score:v,interp:"Over-sedated — Consider reducing sedation. Assess ability to wean.",color:"var(--r-amber)",alert:true};
+      if(v===-1||v===-2) return {score:v,interp:"Lightly sedated — Assess if target RASS achieved",color:"var(--r-blue)"};
+      return {score:"0",interp:"Alert and calm — Target achieved",color:"var(--r-green)"};
+    }},
+  ciwa:{name:"CIWA-Ar",full:"Clinical Institute Withdrawal Assessment — Alcohol",color:"var(--r-red)",icon:"🍺",
+    categories:[
+      {name:"Nausea/Vomiting",key:"NV",items:[{s:0,label:"0 — None",desc:""},{s:1,label:"1 — Mild nausea, no vomiting",desc:""},{s:4,label:"4 — Intermittent nausea with retching",desc:""},{s:7,label:"7 — Constant nausea, frequent retching",desc:""}]},
+      {name:"Tremor",key:"TR",items:[{s:0,label:"0 — No tremor",desc:""},{s:1,label:"1 — Not visible, felt fingertip to fingertip",desc:""},{s:4,label:"4 — Moderate, arms extended",desc:""},{s:7,label:"7 — Severe even with arms not extended",desc:""}]},
+      {name:"Paroxysmal Sweats",key:"SW",items:[{s:0,label:"0 — No sweat",desc:""},{s:1,label:"1 — Barely perceptible sweating",desc:""},{s:4,label:"4 — Beads of sweat on forehead",desc:""},{s:7,label:"7 — Drenching sweats",desc:""}]},
+      {name:"Anxiety",key:"AX",items:[{s:0,label:"0 — No anxiety, at ease",desc:""},{s:1,label:"1 — Mildly anxious",desc:""},{s:4,label:"4 — Moderately anxious or guarded",desc:""},{s:7,label:"7 — Equivalent to acute panic states",desc:""}]},
+      {name:"Agitation",key:"AG",items:[{s:0,label:"0 — Normal activity",desc:""},{s:1,label:"1 — Somewhat more than normal",desc:""},{s:4,label:"4 — Moderately fidgety and restless",desc:""},{s:7,label:"7 — Paces or thrashes about",desc:""}]},
+      {name:"Headache",key:"HA",items:[{s:0,label:"0 — Not present",desc:""},{s:1,label:"1 — Very mild",desc:""},{s:4,label:"4 — Moderately severe",desc:""},{s:7,label:"7 — Extremely severe",desc:""}]},
+      {name:"Orientation",key:"OR",items:[{s:0,label:"0 — Oriented",desc:"Date and name correct"},{s:2,label:"2 — Date error >2 days",desc:""},{s:4,label:"4 — Additional disorientation",desc:""},{s:null,label:"Uncertain / Not Assessed",desc:""}]},
+    ],
+    score:function(sel){
+      var keys=["NV","TR","SW","AX","AG","HA"]; var t=0; var hasAny=false;
+      keys.forEach(function(k){if(sel[k]!==undefined&&sel[k]!==null){t+=sel[k];hasAny=true;}});
+      if(!hasAny) return null;
+      if(t>=15) return {score:t+"/67",interp:"Severe Withdrawal — Pharmacologic intervention required. Benzodiazepine protocol. Consider ICU.",color:"var(--r-red)",alert:true};
+      if(t>=8) return {score:t+"/67",interp:"Moderate — Administer PRN benzodiazepine per protocol. Monitor every 1-2 hours.",color:"var(--r-amber)"};
+      return {score:t+"/67",interp:"Mild — Supportive care, monitoring, PRN medication available",color:"var(--r-green)"};
+    }},
+  news2:{name:"NEWS2",full:"National Early Warning Score 2",color:"var(--r-blue)",icon:"⚠️",
+    categories:[
+      {name:"Respiratory Rate (breaths/min)",key:"RR",items:[{s:3,label:"≤8",desc:""},{s:1,label:"9–11",desc:""},{s:0,label:"12–20",desc:"Normal"},{s:2,label:"21–24",desc:""},{s:3,label:"≥25",desc:""}]},
+      {name:"SpO2 % (without O2)",key:"SP",items:[{s:3,label:"≤91%",desc:""},{s:2,label:"92–93%",desc:""},{s:1,label:"94–95%",desc:""},{s:0,label:"≥96%",desc:"Normal"}]},
+      {name:"Systolic BP (mmHg)",key:"SBP",items:[{s:3,label:"≤90",desc:""},{s:2,label:"91–100",desc:""},{s:1,label:"101–110",desc:""},{s:0,label:"111–219",desc:"Normal"},{s:3,label:"≥220",desc:""}]},
+      {name:"Pulse (bpm)",key:"HR",items:[{s:3,label:"≤40",desc:""},{s:1,label:"41–50",desc:""},{s:0,label:"51–90",desc:"Normal"},{s:1,label:"91–110",desc:""},{s:2,label:"111–130",desc:""},{s:3,label:"≥131",desc:""}]},
+      {name:"Consciousness",key:"CN",items:[{s:0,label:"A — Alert",desc:"Fully alert"},{s:3,label:"C — Confusion",desc:"New confusion"},{s:3,label:"V — Voice",desc:"Responds to voice"},{s:3,label:"P/U — Pain/Unresponsive",desc:"Responds to pain or unresponsive"}]},
+      {name:"Temperature (°C)",key:"TMP",items:[{s:3,label:"≤35.0°C",desc:""},{s:1,label:"35.1–36.0°C",desc:""},{s:0,label:"36.1–38.0°C",desc:"Normal"},{s:1,label:"38.1–39.0°C",desc:""},{s:2,label:"≥39.1°C",desc:""}]},
+    ],
+    score:function(sel){
+      var keys=["RR","SP","SBP","HR","CN","TMP"]; var t=0; var hasAny=false;
+      keys.forEach(function(k){if(sel[k]!==undefined){t+=sel[k];hasAny=true;}});
+      if(!hasAny) return null;
+      if(t>=7) return {score:t,interp:"HIGH Risk — Emergency response. Continuous monitoring, senior nurse/physician NOW.",color:"var(--r-red)",alert:true};
+      if(t>=5) return {score:t,interp:"Medium-High — Urgent review by physician or senior nurse within 30 minutes",color:"var(--r-red)"};
+      if(t>=3) return {score:t,interp:"Low-Medium — Increased monitoring frequency. Notify charge nurse.",color:"var(--r-amber)"};
+      return {score:t,interp:"Low Risk — Continue routine monitoring",color:"var(--r-green)"};
+    }},
+  nyha:{name:"NYHA",full:"NYHA Heart Failure Classification",color:"var(--r-blue)",icon:"❤️",
+    categories:[{name:"Functional Class",key:"FC",items:[
+      {s:1,label:"Class I — No Limitation",desc:"Ordinary physical activity does not cause symptoms. No dyspnea, fatigue, or palpitations with ordinary activity."},
+      {s:2,label:"Class II — Slight Limitation",desc:"Comfortable at rest. Ordinary physical activity (climbing stairs, walking uphill) causes symptoms."},
+      {s:3,label:"Class III — Marked Limitation",desc:"Comfortable at rest. Less than ordinary activity causes symptoms. Activities of daily living limited."},
+      {s:4,label:"Class IV — Symptoms at Rest",desc:"Symptoms present at rest. Any activity increases discomfort. Essentially housebound or bedbound."},
+    ]}],
+    score:function(sel){
+      if(!sel.FC) return null;
+      if(sel.FC===4) return {score:"Class IV",interp:"Severe — Hospice appropriate. Symptoms at rest. Cannot perform any activity without discomfort.",color:"var(--r-red)",alert:true};
+      if(sel.FC===3) return {score:"Class III",interp:"Marked limitation — Consider referral to heart failure specialist. Assess medication optimization.",color:"var(--r-amber)"};
+      if(sel.FC===2) return {score:"Class II",interp:"Mild limitation — Monitor, optimize medications, lifestyle modification",color:"var(--r-green)"};
+      return {score:"Class I",interp:"No limitation",color:"var(--r-green)"};
+    }},
+};
+
+function renderRNScaleHub(page){
+  add(page,rTopBar("Clinical Scales",false));
+  var body=div("r-body");
+  // Recent scores
+  if(S.rScores.length>0){
+    var rl=div("r-label","margin-bottom:8px;"); rl.textContent="RECENT ASSESSMENTS"; add(body,rl);
+    S.rScores.slice(0,3).forEach(function(sc){
+      var card=div("r-card","display:flex;align-items:center;gap:12px;margin-bottom:8px;");
+      var res=div("score-ring","width:50px;height:50px;font-size:17px;"); res.style.color=sc.color; res.style.borderColor=sc.color;
+      res.innerHTML='<span style="font-size:17px;font-weight:700">'+sc.score+'</span>';
+      add(card,res);
+      var info=div("","flex:1;");
+      info.innerHTML='<div style="font-size:18px;font-weight:700;color:var(--r-pri)">'+sc.name+'</div><div style="font-size:15px;color:var(--r-muted);margin-top:2px">'+sc.interp+'</div>';
+      add(card,info);
+      add(body,card);
+    });
+    add(body,div("r-divider","margin-bottom:12px;"));
+  }
+  var hl=div("r-label","margin-bottom:8px;"); hl.textContent="ALL SCALES"; add(body,hl);
+  var grid=div("","display:grid;grid-template-columns:1fr 1fr;gap:8px;");
+  Object.keys(SCALES).forEach(function(id){
+    var sc=SCALES[id];
+    var card=div("r-card","cursor:pointer;padding:14px;border-left:3px solid "+sc.color+";");
+    card.innerHTML='<div style="font-size:25px;margin-bottom:6px">'+sc.icon+'</div><div style="font-size:18px;font-weight:700;color:var(--r-pri)">'+sc.name+'</div><div style="font-size:14px;color:var(--r-muted);margin-top:3px;line-height:1.4">'+sc.full+'</div>';
+    card.onclick=function(){S.rScale=id; S.rScoreState={}; go("rn-scale-entry");};
+    add(grid,card);
+  });
+  add(body,grid);
+  add(page,body);
+  add(page,rNav("rn-scales"));
+}
+
+function renderRNScaleEntry(page){
+  var sc=SCALES[S.rScale]; if(!sc){go("rn-scales");return;}
+  add(page,rTopBar(sc.name,true));
+  var body=div("r-body");
+  // Score display at top
+  var result=sc.score(S.rScoreState);
+  var scoreBig=div("r-card","text-align:center;margin-bottom:14px;background:var(--r-card2);");
+  if(result){
+    scoreBig.innerHTML='<div style="font-size:40px;font-weight:700;color:'+result.color+';font-family:\'DM Mono\',monospace;margin-bottom:4px">'+result.score+'</div><div style="font-size:17px;color:var(--r-sec);line-height:1.5">'+result.interp+'</div>'+(result.alert?'<div style="margin-top:10px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px;font-size:15px;font-weight:700;color:var(--r-red)">⚠️ CLINICAL ALERT — See interpretation above</div>':"");
+  } else {
+    scoreBig.innerHTML='<div style="font-size:17px;color:var(--r-muted)">Complete entries below to calculate score</div>';
+  }
+  add(body,scoreBig);
+  // Categories
+  sc.categories.forEach(function(cat){
+    var sec=div("r-card","margin-bottom:10px;");
+    var cl=div("r-label","margin-bottom:10px;"); cl.textContent=cat.name; add(sec,cl);
+    var stateKey=cat.key||"stage";
+    cat.items.forEach(function(item){
+      var isSet=(S.rScoreState[stateKey]!==undefined);
+      var isSel=(S.rScoreState[stateKey]===item.s);
+      if(item.s===null){ return; } // skip unscored placeholder items
+      var opt=div("scale-opt"+(isSel?" sel":""));
+      var num=div("scale-opt-num"); num.textContent=typeof item.s==="number"&&item.s>0?item.s:(typeof item.s==="string"?item.s.toUpperCase():String(item.s)); add(opt,num);
+      var txt=div("scale-opt-text");
+      var lbl=div("scale-opt-label"); lbl.textContent=item.label; add(txt,lbl);
+      if(item.desc){var sub=div("scale-opt-sub"); sub.textContent=item.desc; add(txt,sub);}
+      add(opt,txt);
+      opt.onclick=(function(sk, sv){ return function(){
+        S.rScoreState[sk]=sv;
+        var res2=sc.score(S.rScoreState);
+        if(res2){ save("cp_rscores",[{name:sc.name,score:res2.score,interp:res2.interp,color:res2.color,date:new Date().toISOString()}].concat(S.rScores.slice(0,9))); S.rScores=JSON.parse(localStorage.getItem("cp_rscores")||"[]"); }
+        render();
+      };})(stateKey, item.s);
+      add(sec,opt);
+    });
+    add(body,sec);
+  });
+  // Clear
+  var clearBtn=btn("r-btn r-btn-full","Clear All",function(){S.rScoreState={};render();});
+  clearBtn.style.cssText="width:100%;padding:12px;border-radius:10px;background:var(--r-card2);border:1px solid var(--r-border);color:var(--r-muted);font-size:17px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;";
+  add(body,clearBtn);
+  add(page,body);
+  add(page,rNav("rn-scales"));
+}
+</script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  SBAR GENERATOR
+// ═══════════════════════════════════════════════════════
+function renderRNSBAR(page){
+  add(page,rTopBar("SBAR Generator",false));
+  var body=div("r-body");
+  // Intro
+  var intro=div("r-card r-card-blue","margin-bottom:12px;");
+  intro.innerHTML='<div style="font-size:18px;font-weight:700;color:var(--r-pri);margin-bottom:4px">Structured Communication Tool</div><div style="font-size:17px;color:var(--r-sec);line-height:1.6">Complete each section. The formatted SBAR report will generate automatically for physician calls or handoffs.</div>';
+  add(body,intro);
+  var sections=[
+    {key:"situation",color:"var(--r-blue)",label:"S — SITUATION",placeholder:"What is happening RIGHT NOW? e.g. 'I am calling about patient John Smith in room 412. His oxygen saturation has dropped to 88% in the last 30 minutes.'"},
+    {key:"background",color:"var(--r-teal)",label:"B — BACKGROUND",placeholder:"Relevant history. e.g. 'Mr. Smith is a 74-year-old with COPD and heart failure admitted 3 days ago. He is a DNR/DNI. Current medications include furosemide and albuterol.'"},
+    {key:"assessment",color:"var(--r-amber)",label:"A — ASSESSMENT",placeholder:"What do you think is going on? e.g. 'I believe his deterioration may be related to fluid overload vs. COPD exacerbation. Braden score 12, NEWS2 score 6.'"},
+    {key:"recommendation",color:"var(--r-red)",label:"R — RECOMMENDATION",placeholder:"What do you need? e.g. 'I would like you to come assess the patient. In the meantime, should I obtain an ABG and chest X-ray? What would you like me to do if his O2 drops below 85%?'"},
+  ];
+  sections.forEach(function(sec){
+    var card=div("sbar-section","margin-bottom:10px;border-color:"+sec.color+";");
+    var lbl=div("sbar-label","color:"+sec.color+";"); lbl.textContent=sec.label; add(card,lbl);
+    var t=ta("","",S.sbarData[sec.key],function(){S.sbarData[sec.key]=this.value;updateSBAR();});
+    t.style.cssText="width:100%;background:var(--r-bg);border:1px solid var(--r-border);border-radius:8px;padding:10px 12px;color:var(--r-pri);font-size:17px;line-height:1.6;resize:none;font-family:'DM Sans',sans-serif;";
+    t.rows=3; t.placeholder=sec.placeholder;
+    add(card,t);
+    add(body,card);
+  });
+  // Auto-fill from patient
+  var auto=btn("r-btn r-btn-teal","Auto-Fill from Patient Profile",function(){
+    S.sbarData.background="Patient: "+S.patient.name+(S.patient.dob?" | DOB: "+S.patient.dob:"")+" | Diagnoses: "+S.patient.diagnoses.join(", ")+" | Code Status: "+S.patient.codeStatus+" | Allergies: "+S.patient.allergies.join(", ")+" | Medications: "+S.patient.medications.join(", ");
+    var app=document.getElementById("app"); app.innerHTML=""; var pg=document.createElement("div"); pg.className="page r-page"; renderRNSBAR(pg); app.appendChild(pg);
+  });
+  auto.style.cssText="width:100%;padding:12px;border-radius:10px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;font-family:'DM Sans',sans-serif;background:var(--r-teal);color:white;border:none;";
+  add(body,auto);
+  // Result
+  if(S.sbarData.situation||S.sbarData.background){
+    var rl=div("r-label","margin-bottom:8px;"); rl.textContent="FORMATTED SBAR"; add(body,rl);
+    var result=div("sbar-result");
+    result.textContent=buildSBAR();
+    add(body,result);
+    var copyBtn=btn("r-btn r-btn-blue r-btn-full","📋 Copy to Clipboard",function(){
+      navigator.clipboard&&navigator.clipboard.writeText(buildSBAR()).then(function(){copyBtn.textContent="✅ Copied!";setTimeout(function(){copyBtn.textContent="📋 Copy to Clipboard";},2000);});
+    });
+    copyBtn.style.cssText="width:100%;padding:12px;border-radius:10px;font-size:18px;font-weight:600;cursor:pointer;margin-top:10px;font-family:'DM Sans',sans-serif;background:var(--r-blue);color:white;border:none;";
+    add(body,copyBtn);
+    // Clear
+    var clrBtn=btn("","Clear All",function(){
+      S.sbarData={situation:"",background:"",assessment:"",recommendation:""};
+      var app=document.getElementById("app"); app.innerHTML=""; var pg=document.createElement("div"); pg.className="page r-page"; renderRNSBAR(pg); app.appendChild(pg);
+    });
+    clrBtn.style.cssText="width:100%;padding:12px;border-radius:10px;background:var(--r-card2);border:1px solid var(--r-border);color:var(--r-muted);font-size:17px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;";
+    add(body,clrBtn);
+  }
+  add(page,body);
+  add(page,rNav("rn-sbar"));
+}
+function buildSBAR(){
+  var d=S.sbarData; var now=new Date().toLocaleString();
+  var out="=== SBAR COMMUNICATION ===\n"+now+"\n\n";
+  if(d.situation) out+="SITUATION:\n"+d.situation+"\n\n";
+  if(d.background) out+="BACKGROUND:\n"+d.background+"\n\n";
+  if(d.assessment) out+="ASSESSMENT:\n"+d.assessment+"\n\n";
+  if(d.recommendation) out+="RECOMMENDATION:\n"+d.recommendation+"\n\n";
+  out+="========================";
+  return out;
+}
+function updateSBAR(){
+  var app=document.getElementById("app"); app.innerHTML=""; var pg=document.createElement("div"); pg.className="page r-page"; renderRNSBAR(pg); app.appendChild(pg);
+}
+
+// ═══════════════════════════════════════════════════════
+//  CALCULATORS
+// ═══════════════════════════════════════════════════════
+function renderRNCalcs(page){
+  add(page,rTopBar("Calculators",false));
+  var body=div("r-body");
+  // Tab bar
+  var tabs=div("","display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;");
+  var calcTabs=[["drip","IV Drip"],["dose","Wt Dose"],["fluid","Fluid Bal"],["bmi","BMI"],["crcl","CrCl"]];
+  calcTabs.forEach(function(t){
+    var b=btn("","",function(){S.calcTab=t[0];S.calcVals={};var app=document.getElementById("app");app.innerHTML="";var pg=document.createElement("div");pg.className="page r-page";renderRNCalcs(pg);app.appendChild(pg);});
+    b.textContent=t[1];
+    b.style.cssText="padding:8px 16px;border-radius:50px;font-size:17px;font-weight:700;white-space:nowrap;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;"+(S.calcTab===t[0]?"background:var(--r-blue);color:white;border:none;":"background:var(--r-card2);color:var(--r-sec);border:1px solid var(--r-border);");
+    add(tabs,b);
+  });
+  add(body,tabs);
+  var v=S.calcVals;
+  function numInp(label,key,placeholder,unit){
+    var g=div("","margin-bottom:12px;");
+    var l=div("r-label","margin-bottom:6px;"); l.textContent=label+(unit?" ("+unit+")":""); add(g,l);
+    var i=inp("calc-input",placeholder,v[key]||"",function(){v[key]=parseFloat(this.value)||0;renderCalcResult(body,calcResult());});
+    i.type="number"; i.inputMode="decimal";
+    add(g,i); return g;
+  }
+  function calcResult(){
+    if(S.calcTab==="drip"){
+      if(!v.vol||!v.hrs) return null;
+      var rate=v.vol/v.hrs;
+      var drip60=rate/60*60, drip15=rate/60*15, drip10=rate/60*10;
+      return {val:rate.toFixed(1),unit:"mL/hr",detail:"Drop factors: 60 gtt/mL → "+(rate).toFixed(0)+" gtt/min | 15 gtt/mL → "+(drip15).toFixed(0)+" gtt/min | 10 gtt/mL → "+(drip10).toFixed(0)+" gtt/min"};
+    }
+    if(S.calcTab==="dose"){
+      if(!v.wt||!v.mcg) return null;
+      var mghr=v.mcg*v.wt*60/1000;
+      var mlhr=v.conc?mghr/v.conc:null;
+      return {val:mghr.toFixed(2),unit:"mg/hr",detail:mlhr?"At "+v.conc+" mg/mL concentration: "+mlhr.toFixed(1)+" mL/hr":"Enter concentration for mL/hr"};
+    }
+    if(S.calcTab==="fluid"){
+      var totalIn=(v.iv||0)+(v.oral||0)+(v.tf||0);
+      var totalOut=(v.urine||0)+(v.drain||0)+(v.other||0);
+      var balance=totalIn-totalOut;
+      return {val:(balance>=0?"+":"")+balance,unit:"mL balance",detail:"Total In: "+totalIn+" mL | Total Out: "+totalOut+" mL",color:balance>500?"var(--r-amber)":balance<-500?"var(--r-red)":"var(--r-green)"};
+    }
+    if(S.calcTab==="bmi"){
+      if(!v.wt||!v.ht) return null;
+      var bmi=v.wt/(v.ht/100)/(v.ht/100);
+      var cat=bmi<18.5?"Underweight":bmi<25?"Normal weight":bmi<30?"Overweight":bmi<35?"Obese Class I":bmi<40?"Obese Class II":"Obese Class III";
+      var ibw=v.sex==="f"?45.5+2.3*(v.ht/2.54-60):50+2.3*(v.ht/2.54-60);
+      return {val:bmi.toFixed(1),unit:cat,detail:"IBW (Devine): "+(ibw>0?ibw.toFixed(1)+"kg":"enter height in cm")+" | Ht: "+v.ht+"cm Wt: "+v.wt+"kg"};
+    }
+    if(S.calcTab==="crcl"){
+      if(!v.age||!v.wt||!v.cr) return null;
+      var crcl=((140-v.age)*v.wt)/(72*v.cr)*(v.sex==="f"?0.85:1);
+      var stage=crcl>=90?"G1 Normal":crcl>=60?"G2 Mild":crcl>=45?"G3a Mild-Mod":crcl>=30?"G3b Mod-Severe":crcl>=15?"G4 Severe":"G5 Kidney Failure";
+      return {val:crcl.toFixed(1),unit:"mL/min (CrCl)",detail:"CKD Stage: "+stage+" | Adjust doses for medications renally cleared at CrCl <60"};
+    }
+    return null;
+  }
+  function renderCalcResult(body,res){
+    var existing=body.querySelector(".calc-result");
+    if(existing) existing.remove();
+    if(res){
+      var r=div("calc-result");
+      r.innerHTML='<div class="big" style="color:'+(res.color||"var(--r-blue)")+'">'+res.val+'</div><div class="unit">'+res.unit+'</div>'+(res.detail?'<div style="font-size:15px;color:var(--r-muted);margin-top:8px;line-height:1.6">'+res.detail+'</div>':"");
+      add(body,r);
+    }
+  }
+  // Render calc inputs
+  if(S.calcTab==="drip"){
+    addAll(body,[numInp("Volume","vol","500","mL"),numInp("Time","hrs","8","hours")]);
+  } else if(S.calcTab==="dose"){
+    addAll(body,[numInp("Patient Weight","wt","70","kg"),numInp("Dose","mcg","5","mcg/kg/min"),numInp("Concentration (optional)","conc","","mg/mL")]);
+  } else if(S.calcTab==="fluid"){
+    var ihl=div("r-label","margin-bottom:6px;"); ihl.textContent="INTAKE"; add(body,ihl);
+    addAll(body,[numInp("IV Fluids","iv","","mL"),numInp("Oral","oral","","mL"),numInp("Tube Feeds","tf","","mL")]);
+    add(body,div("r-divider","margin:12px 0;"));
+    var ohl=div("r-label","margin-bottom:6px;"); ohl.textContent="OUTPUT"; add(body,ohl);
+    addAll(body,[numInp("Urine","urine","","mL"),numInp("Drains","drain","","mL"),numInp("Other (emesis/stool)","other","","mL")]);
+  } else if(S.calcTab==="bmi"){
+    addAll(body,[numInp("Weight","wt","70","kg"),numInp("Height","ht","170","cm")]);
+    var sexL=div("r-label","margin-bottom:6px;"); sexL.textContent="SEX (for IBW/CrCl)"; add(body,sexL);
+    var sexRow=div("","display:flex;gap:8px;margin-bottom:12px;");
+    ["m","f"].forEach(function(sx){
+      var b=btn("","",function(){v.sex=sx;renderCalcResult(body,calcResult());});
+      b.textContent=sx==="m"?"Male":"Female";
+      b.style.cssText="flex:1;padding:10px;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;"+(v.sex===sx?"background:var(--r-blue);color:white;border:none;":"background:var(--r-card2);color:var(--r-sec);border:1px solid var(--r-border);");
+      add(sexRow,b);
+    });
+    add(body,sexRow);
+  } else if(S.calcTab==="crcl"){
+    addAll(body,[numInp("Age","age","","years"),numInp("Weight","wt","","kg"),numInp("Serum Creatinine","cr","","mg/dL")]);
+    var sxL=div("r-label","margin-bottom:6px;"); sxL.textContent="SEX"; add(body,sxL);
+    var sxRow=div("","display:flex;gap:8px;margin-bottom:12px;");
+    ["m","f"].forEach(function(sx){
+      var b=btn("","",function(){v.sex=sx;renderCalcResult(body,calcResult());});
+      b.textContent=sx==="m"?"Male":"Female";
+      b.style.cssText="flex:1;padding:10px;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;"+(v.sex===sx?"background:var(--r-blue);color:white;border:none;":"background:var(--r-card2);color:var(--r-sec);border:1px solid var(--r-border);");
+      add(sxRow,b);
+    });
+    add(body,sxRow);
+  }
+  renderCalcResult(body,calcResult());
+  add(page,body);
+  add(page,rNav("rn-calculators"));
+}
+
+// ═══════════════════════════════════════════════════════
+//  HOSPICE LCD CHECKER
+// ═══════════════════════════════════════════════════════
+function renderRNLCD(page){
+  add(page,rTopBar("Hospice LCD Criteria",false));
+  var body=div("r-body");
+
+  var intro=div("r-card r-card-blue","margin-bottom:12px;");
+  add(intro,el("div",{style:"font-size:15px;font-weight:700;color:var(--r-pri);margin-bottom:6px"},"Medicare LCD Reference — Bedside Edition"));
+  add(intro,el("div",{style:"font-size:14px;color:var(--r-sec);line-height:1.65"},"CMS requires two physician certifications and documented clinical findings matching LCD criteria. Use this as a documentation reference during assessments and recertification visits. Tap any diagnosis to expand full criteria."));
+  add(body,intro);
+
+  var LCDs=[
+    {title:"Dementia / Alzheimer's",icon:"🧠",color:"var(--r-purple)",ref:"LCD L33393 | FAST Scale Required",
+     primary:"FAST Stage 7A or beyond — speech limited to 6 or fewer intelligible words per day",
+     whyHospice:"Late-stage dementia is a terminal illness. Medicare recognizes it as such when the patient reaches Stage 7 with documented comorbidities. Hospice improves comfort, reduces hospitalizations, and supports family caregivers.",
+     required:[
+       "FAST Stage 7A: speech limited to 6 or fewer intelligible words per day (PRIMARY criterion)",
+       "Unable to ambulate without personal assistance (FAST 7C)",
+       "Unable to dress without assistance (FAST 6A)",
+       "Unable to bathe without assistance (FAST 6B)",
+       "Urinary and/or fecal incontinence (FAST 6D/6E)",
+     ],
+     comorbLabel:"REQUIRED comorbid condition — at least ONE in past 12 months:",
+     comorbids:[
+       "Aspiration pneumonia — documented diagnosis",
+       "Pyelonephritis or other upper UTI",
+       "Septicemia",
+       "Decubitus ulcers — Stage 3 or 4, multiple sites",
+       "Fever recurrent after antibiotic treatment",
+       "Weight loss ≥10% body weight in 6 months, OR serum albumin <2.5 g/dL",
+     ],
+     docTips:[
+       "Document FAST stage verbatim in every visit note",
+       "Describe speech: 'Patient spoke 2 intelligible words during 45-minute visit'",
+       "Document which ADLs require full assist vs. cueing",
+       "Note comorbid condition with date of diagnosis or episode",
+       "If weight loss: document current weight, weight 6 months ago, percentage lost",
+     ],
+     alert:"FAST staging alone is NOT sufficient. Both Stage 7A+ AND at least one comorbid condition must be documented in the clinical record."},
+
+    {title:"Cancer / Malignancy",icon:"🎗",color:"var(--r-red)",ref:"LCD L33393 | IOM Pub 100-02 Ch 9",
+     primary:"Advanced or metastatic malignancy with evidence of decline — not responding to curative treatment",
+     whyHospice:"Patients with advanced cancer spend their final months managing pain, fatigue, and declining function. Hospice provides expert symptom management, reduces ER visits, and gives families the support they need. Most oncologists wish patients were referred sooner.",
+     required:[
+       "Metastatic or locally advanced malignancy not amenable to curative treatment",
+       "Patient has declined, failed, or exhausted curative/disease-modifying therapies",
+       "Clinical and/or radiographic evidence of disease progression",
+       "PPS or KPS ≤50% — spends majority of time in bed",
+     ],
+     comorbLabel:"Supporting indicators — document as many as apply:",
+     comorbids:[
+       "Weight loss ≥10% in past 6 months (not from diuresis)",
+       "Dysphagia leading to recurrent aspiration or inadequate nutrition",
+       "Serum albumin <2.5 g/dL",
+       "Uncontrolled pain requiring escalating opioid doses",
+       "Recurrent pleural effusion, ascites, or pericardial effusion",
+       ">1 ER visit or hospital admission in past 30 days",
+       "Uncontrolled hypercalcemia despite treatment",
+     ],
+     docTips:[
+       "Document PPS score at every visit with functional justification",
+       "Note whether patient is receiving palliative vs. curative chemo/radiation",
+       "Record weight every visit — trend matters for recertification",
+       "Describe functional decline in ADL terms: 'No longer able to prepare meals independently'",
+       "Capture patient/family goals: 'Patient declined further chemotherapy, goals are comfort'",
+     ],
+     alert:""},
+
+    {title:"Heart Disease (CHF)",icon:"❤️",color:"var(--r-red)",ref:"LCD L33393 | AHA Stage D",
+     primary:"NYHA Class IV symptoms at rest despite optimal medical management",
+     whyHospice:"End-stage heart failure means repeated hospitalizations that provide diminishing benefit. Hospice provides expert dyspnea and fluid management at home, dramatically improves quality of life, and reduces hospital days in the final months.",
+     required:[
+       "NYHA Class IV: symptoms of HF at rest — unable to carry on any activity without discomfort",
+       "Optimally treated with maximum tolerated doses of ACE inhibitor, beta-blocker, and diuretic (or documented reason for non-use)",
+       "EF ≤20% if echocardiogram available (not required if not available)",
+       "Persistent signs and symptoms of HF despite aggressive diuresis",
+     ],
+     comorbLabel:"Supporting clinical findings — document all that apply:",
+     comorbids:[
+       "Symptomatic arrhythmias resistant to treatment (AF, VT)",
+       "History of cardiac arrest, resuscitated or not",
+       "History of unexplained syncope",
+       "Cardiogenic hepatopathy (elevated LFTs, RUQ pain, ascites)",
+       "Cardiac cachexia: weight loss ≥5% in past 6 months not from diuresis",
+       "Reduced kidney function — BUN/Cr elevation — in context of HF",
+     ],
+     docTips:[
+       "Document NYHA class at every visit with specific functional examples",
+       "Note dyspnea: 'SOB at rest, unable to complete a full sentence without pausing'",
+       "Record daily weight trend — note if patient stopped weighing due to debility",
+       "Document medication history and reason for dose limits (e.g. hypotension limiting ACE inhibitor)",
+       "If patient declines ICD shock therapy or other interventions, document this clearly",
+     ],
+     alert:"Weight GAIN from fluid retention does not count against the weight loss criterion. Specify 'weight loss not attributed to diuresis' in documentation."},
+
+    {title:"Pulmonary Disease (COPD)",icon:"🫁",color:"var(--r-amber)",ref:"LCD L33393",
+     primary:"Severe COPD with disabling dyspnea at rest despite maximum bronchodilator therapy",
+     whyHospice:"Advanced COPD causes severe air hunger that is one of the most distressing symptoms in medicine. Hospice can provide comfort-focused breathlessness management at home — including low-dose morphine, which is more effective for dyspnea than many think.",
+     required:[
+       "FEV1 <30% predicted post-bronchodilator on most recent spirometry (document date and value)",
+       "Dyspnea at rest or with minimal exertion despite bronchodilators and steroids",
+       "Progressive disease — documented decline despite optimal care",
+       "Recurrent hospitalizations for respiratory failure — 3+ in 12 months is strong support",
+     ],
+     comorbLabel:"Supporting criteria:",
+     comorbids:[
+       "Resting hypoxia: pO2 ≤55 mmHg on room air OR SaO2 ≤88% on room air",
+       "Hypercapnia: pCO2 >50 mmHg",
+       "Cor pulmonale or right heart failure on echo or EKG",
+       "Unintentional weight loss >10% in past 6 months",
+       "Resting tachycardia >100 bpm",
+       "Increasing dependence on supplemental oxygen",
+     ],
+     docTips:[
+       "Document SpO2 on room air at every visit — trend is important",
+       "Describe functional limitation: 'Unable to speak full sentence without dyspnea, stops to rest after 10 feet'",
+       "Record oxygen flow rate and hours per day",
+       "Document hospitalizations in past 12 months with dates",
+       "If spirometry not available, note and document clinical findings instead",
+     ],
+     alert:""},
+
+    {title:"Renal Disease",icon:"🩺",color:"var(--r-blue)",ref:"LCD L33393",
+     primary:"End-stage renal disease — patient not pursuing dialysis or transplant, or dialysis being discontinued",
+     whyHospice:"Patients with ESRD who decline or discontinue dialysis have a prognosis measured in days to weeks. Hospice provides expert symptom management for uremia — including pruritus, nausea, restlessness, and dyspnea — in a setting of the patient's choice.",
+     required:[
+       "Creatinine clearance <10 mL/min (or <15 mL/min for diabetics) — document lab value and date",
+       "Serum creatinine >8.0 mg/dL (or >6.0 mg/dL for diabetics)",
+       "Clinical signs of uremia: confusion, intractable nausea/vomiting, pruritus, reduced UOP",
+       "Patient is not pursuing dialysis or kidney transplant (document informed decision)",
+     ],
+     comorbLabel:"Supporting criteria:",
+     comorbids:[
+       "Intractable fluid overload not responding to diuretics",
+       "Intractable hyperkalemia >7.0 mEq/L despite treatment",
+       "Uremic pericarditis",
+       "Hepatorenal syndrome",
+       "Mechanical ventilation declined",
+       "Uremic encephalopathy — confusion, asterixis, seizures",
+     ],
+     docTips:[
+       "Document most recent BUN, creatinine, GFR, and potassium with dates",
+       "Note uremic symptoms at each visit specifically",
+       "Document patient/family conversation about dialysis decision clearly",
+       "If patient was on dialysis: document date discontinued and reason",
+       "Record UOP — 'less than 200 mL in 24 hours' is meaningful",
+     ],
+     alert:""},
+
+    {title:"Stroke / CVA",icon:"🧬",color:"#0891B2",ref:"LCD L33393 | Neurological Disease",
+     primary:"Post-stroke condition with severe persistent deficits and evidence of continued decline",
+     whyHospice:"Severe stroke can leave patients dependent for all care with poor prognosis for recovery. Hospice provides expert management of post-stroke complications — dysphagia, spasticity, pain, skin breakdown — while supporting the family through a prolonged and difficult course.",
+     required:[
+       "Severely impaired functional status post-stroke — PPS or KPS ≤40%",
+       "Unable to maintain hydration and nutrition — dysphagia with aspiration risk",
+       "Post-stroke complications: recurrent aspiration pneumonia, UTI, pressure injuries",
+       "No meaningful recovery of function after 3+ months of rehabilitation (or patient/family has declined further rehab)",
+     ],
+     comorbLabel:"Supporting criteria:",
+     comorbids:[
+       "Dysphagia documented — patient on thickened liquids or NPO",
+       "Weight loss >10% in 6 months",
+       "Serum albumin <2.5 g/dL",
+       "Recurrent aspiration pneumonia",
+       "Severe aphasia — unable to express needs",
+       "Stage 3 or 4 pressure injuries despite repositioning",
+     ],
+     docTips:[
+       "Document functional status with specific ADL deficits",
+       "Note swallowing status: 'Patient receiving all nutrition via PEG tube, unable to swallow safely'",
+       "Record cognitive and communication status",
+       "Document family goals and whether patient previously expressed wishes about life-sustaining treatment",
+       "Note recurrent infections with dates if applicable",
+     ],
+     alert:""},
+
+    {title:"ALS / Neurological Disease",icon:"⚡",color:"#0D9488",ref:"LCD L33393 | ALS/MSA/Parkinson's/MS",
+     primary:"Rapidly progressing neurological disease with critical nutritional or respiratory compromise",
+     whyHospice:"ALS progresses relentlessly. Hospice provides expert management of the most distressing symptoms — dyspnea, secretions, dysphagia, pain, and communication difficulty — while sparing families the trauma of emergency hospitalizations.",
+     required:[
+       "Critically impaired breathing capacity — VC <30% predicted OR dyspnea at rest",
+       "Rapid progression of disease to critical nutritional status",
+       "Patient declines or is no longer a candidate for artificial ventilation (BiPAP/trach/vent)",
+     ],
+     comorbLabel:"Supporting criteria — one or more of the following:",
+     comorbids:[
+       "Dysphagia: requires PEG or patient refuses PEG with documented aspiration risk",
+       "Weight loss >10% in 6 months despite nutritional support",
+       "Serum albumin <2.5 g/dL",
+       "Decubiti, aspiration pneumonia, or sepsis related to disease",
+       "Life-threatening complication of the neurological disease within 12 months",
+       "Medical complications attributable to debility: UTI, aspiration, fever",
+     ],
+     docTips:[
+       "Document most recent spirometry or VC if available",
+       "Describe respiratory status: 'Uses BiPAP 20 hours/day, desats to 84% with minimal exertion'",
+       "Note feeding status — PEG vs. oral vs. aspiration risk",
+       "Document patient decision about mechanical ventilation",
+       "Capture rate of decline: 'Lost ability to ambulate independently within past 4 months'",
+     ],
+     alert:"For ALS specifically, respiratory failure OR nutritional failure alone may qualify. Both criteria do not need to be met simultaneously."},
+
+    {title:"Liver Disease / Cirrhosis",icon:"🟤",color:"#92400E",ref:"LCD L33393",
+     primary:"End-stage liver disease — Child-Pugh Class C or MELD score ≥17 — not a transplant candidate",
+     whyHospice:"End-stage liver disease causes profound suffering — refractory ascites, encephalopathy, GI bleeding, and severe fatigue. Hospice provides expert symptom control and can dramatically reduce the number of paracentesis visits and hospitalizations.",
+     required:[
+       "Prothrombin time >5 seconds above control, OR INR >1.5",
+       "Serum albumin <2.5 g/dL",
+       "Not a liver transplant candidate (patient declined, not a candidate, or waiting list inactive)",
+       "Progressive malnutrition despite dietary support",
+     ],
+     comorbLabel:"Supporting criteria — one or more required:",
+     comorbids:[
+       "Ascites — refractory to sodium restriction and diuretic therapy",
+       "Spontaneous bacterial peritonitis",
+       "Hepatorenal syndrome: creatinine >1.5 mg/dL in context of liver failure",
+       "Hepatic encephalopathy — refractory to lactulose and rifaximin",
+       "Recurrent variceal bleeding despite transfusions, sclerotherapy, or banding",
+       "Hepatocellular carcinoma",
+     ],
+     docTips:[
+       "Document most recent INR, albumin, bilirubin, creatinine with dates",
+       "Note ascites: 'Requires paracentesis every 7-10 days for comfort, 8-10L removed each time'",
+       "Document encephalopathy grade and current medications",
+       "Record bleeding history if applicable",
+       "Note patient/family decision about transplant clearly",
+     ],
+     alert:""},
+
+    {title:"HIV / AIDS",icon:"🔴",color:"#BE185D",ref:"LCD L33393",
+     primary:"CD4 count <25 cells/mcL OR viral load >100,000 copies/mL — with functional decline",
+     whyHospice:"Advanced AIDS with opportunistic infections and functional decline has a prognosis consistent with hospice eligibility. Hospice provides expert pain and symptom management while preserving dignity and quality of life.",
+     required:[
+       "CD4 count <25 cells/mcL (document lab value and date)",
+       "Viral load >100,000 copies/mL despite antiretroviral therapy — or patient not on ART",
+       "PPS or KPS ≤50%",
+       "Declining functional status with dependence for multiple ADLs",
+     ],
+     comorbLabel:"Supporting criteria — document life-threatening complications:",
+     comorbids:[
+       "CNS lymphoma",
+       "MAC — Mycobacterium avium complex infection not responding to treatment",
+       "Visceral Kaposi's sarcoma — not responding to therapy",
+       "Renal failure — HIV nephropathy",
+       "Cryptosporidiosis — chronic diarrhea >1 month",
+       "Toxoplasmosis — despite treatment",
+       "Progressive multifocal leukoencephalopathy (PML)",
+       "Wasting syndrome: >10% unintentional weight loss",
+     ],
+     docTips:[
+       "Document most recent CD4 and viral load with dates",
+       "Note current ART regimen and response or reason for non-adherence",
+       "Document functional status with specific ADL deficits",
+       "Record any active opportunistic infections",
+       "Note weight trend",
+     ],
+     alert:""},
+
+    {title:"General Debility / Failure to Thrive",icon:"📉",color:"#6B7280",ref:"LCD L33393 | Non-Disease Specific",
+     primary:"Severe functional decline from multiple comorbidities — no single primary terminal diagnosis",
+     whyHospice:"Many patients do not have a single clear terminal diagnosis but are clearly dying from the combined effect of multiple chronic illnesses and advanced age. Hospice provides comfort, support, and dignity for these patients who otherwise fall through the cracks of disease-specific criteria.",
+     required:[
+       "PPS or KPS ≤40% — predominantly bed or chair bound",
+       "Profound weakness and fatigue — dependent for all or most ADLs",
+       "Nutritional impairment: BMI <22, serum albumin <2.5 g/dL, weight loss ≥10% in 6 months",
+       "Declining trajectory despite treatment of underlying conditions",
+       "Multiple comorbidities each contributing to decline",
+     ],
+     comorbLabel:"Common contributing diagnoses (document all that apply):",
+     comorbids:[
+       "Advanced COPD, CHF, or CKD — each not meeting individual LCD threshold",
+       "Type 2 diabetes with end-organ damage",
+       "Peripheral vascular disease — non-healing wounds",
+       "Malnutrition and cachexia — unresponsive to nutritional support",
+       "Recurrent falls with injury",
+       "Dementia not yet at FAST 7A but with significant functional decline",
+     ],
+     docTips:[
+       "This is the most documentation-intensive LCD — narrative is critical",
+       "Write a clear clinical summary: 'Despite treatment of CHF, CKD, and COPD, patient has declined steadily over 6 months and is now fully dependent for all ADLs'",
+       "Document ALL diagnoses and how each contributes to decline",
+       "Include trajectory: 'Was walking independently 6 months ago, now bed-bound'",
+       "Albumin and weight loss data are especially important for this category",
+     ],
+     alert:"The general debility LCD requires particularly strong narrative documentation. A clear picture of declining trajectory over time is essential for certification and recertification."},
+  ];
+
+  var openLCD=null;
+  function renderLCDs(){
+    Array.from(body.querySelectorAll(".lcd-card")).forEach(function(c){c.remove();});
+    LCDs.forEach(function(lcd,i){
+      var isOpen=openLCD===i;
+      var card=div("r-card lcd-card","cursor:pointer;margin-bottom:8px;border-left:3px solid "+lcd.color+";");
+      var hdr=div("","display:flex;align-items:center;gap:10px;");
+      add(hdr,el("span",{style:"font-size:20px"},lcd.icon));
+      var hi=div("","flex:1;");
+      add(hi,el("div",{style:"font-size:15px;font-weight:700;color:var(--r-pri)"},lcd.title));
+      add(hi,el("div",{style:"font-family:'DM Mono',monospace;font-size:11px;color:var(--r-muted);margin-top:2px"},lcd.ref));
+      add(hdr,hi);
+      add(hdr,el("span",{style:"color:var(--r-muted);font-size:16px"},isOpen?"▲":"▼"));
+      add(card,hdr);
+
+      if(isOpen){
+        add(card,div("r-divider","margin:10px 0;"));
+
+        // Why hospice
+        var wh=div("r-card-teal r-card","margin-bottom:10px;padding:12px;border-radius:10px;");
+        add(wh,el("div",{style:"font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--r-teal);margin-bottom:5px"},"WHY HOSPICE FOR THIS DIAGNOSIS"));
+        add(wh,el("div",{style:"font-size:13px;color:var(--r-sec);line-height:1.65"},lcd.whyHospice));
+        add(card,wh);
+
+        // Primary
+        add(card,el("div",{style:"font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(239,68,68,.8);margin-bottom:5px"},"PRIMARY CRITERION"));
+        add(card,el("div",{style:"font-size:14px;font-weight:600;color:var(--r-pri);line-height:1.6;margin-bottom:10px"},lcd.primary));
+
+        // Required
+        add(card,el("div",{style:"font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(239,68,68,.8);margin-bottom:6px"},"REQUIRED CLINICAL FINDINGS"));
+        lcd.required.forEach(function(r){
+          var row=div("","display:flex;gap:8px;margin-bottom:6px;");
+          add(row,el("span",{style:"color:var(--r-red);flex-shrink:0;margin-top:1px"},"▸"));
+          add(row,el("span",{style:"font-size:13px;color:var(--r-sec);line-height:1.55"},r));
+          add(card,row);
+        });
+
+        // Comorbids
+        add(card,el("div",{style:"font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(59,130,246,.8);margin-top:10px;margin-bottom:5px"},lcd.comorbLabel.toUpperCase()));
+        lcd.comorbids.forEach(function(c){
+          var row=div("","display:flex;gap:8px;margin-bottom:6px;");
+          add(row,el("span",{style:"color:var(--r-blue);flex-shrink:0;margin-top:1px"},"▸"));
+          add(row,el("span",{style:"font-size:13px;color:var(--r-sec);line-height:1.55"},c));
+          add(card,row);
+        });
+
+        // Documentation tips
+        var dt=div("r-card-amber r-card","margin-top:10px;padding:12px;border-radius:10px;");
+        add(dt,el("div",{style:"font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--r-amber);margin-bottom:6px"},"DOCUMENTATION TIPS FOR NURSES"));
+        lcd.docTips.forEach(function(tip){
+          var row=div("","display:flex;gap:8px;margin-bottom:5px;");
+          add(row,el("span",{style:"color:var(--r-amber);flex-shrink:0"},"•"));
+          add(row,el("span",{style:"font-size:13px;color:var(--r-sec);line-height:1.55"},tip));
+          add(dt,row);
+        });
+        add(card,dt);
+
+        // Alert if present
+        if(lcd.alert){
+          var al=div("r-card-red r-card","margin-top:10px;padding:12px;border-radius:10px;");
+          add(al,el("div",{style:"font-size:11px;font-weight:700;color:var(--r-red);margin-bottom:4px"},"⚠️ CLINICAL NOTE"));
+          add(al,el("div",{style:"font-size:13px;color:var(--r-sec);line-height:1.6"},lcd.alert));
+          add(card,al);
+        }
+      }
+
+      card.onclick=function(){openLCD=isOpen?null:i;renderLCDs();};
+      add(body,card);
+    });
+  }
+  renderLCDs();
+  add(page,body);
+  add(page,rNav("rn-lcd"));
+}
+
+function renderRNPIRef(page){
+  add(page,rTopBar("Pressure Injury Staging",false));
+  var body=div("r-body");
+  var stages=[
+    {stage:"Stage 1",color:"var(--r-amber)",icon:"1",desc:"Non-blanchable erythema of intact skin. Area may be painful, firm, soft, warmer or cooler than adjacent tissue. May be difficult to detect in darkly pigmented skin.",action:"Reposition q2h. Moisture barrier. Pressure-redistributing surface. Document location and size.",nursing:"Intact skin — do NOT open or debride. Assess skin with each turn."},
+    {stage:"Stage 2",color:"var(--r-amber)",icon:"2",desc:"Partial-thickness loss of skin with exposed dermis. Wound bed is viable, pink/red, moist. May present as intact or ruptured serum-filled blister. Adipose and deeper tissues are NOT visible.",action:"Moisture-retentive dressing (hydrocolloid, foam). Protect from friction. No wet-to-dry dressings.",nursing:"Slough NOT present in Stage 2 — if slough is present, reassign stage. Size: length x width in cm."},
+    {stage:"Stage 3",color:"var(--r-red)",icon:"3",desc:"Full-thickness skin loss. Adipose (fat) IS visible. Granulation tissue and epibole (rolled wound edges) often present. Depth varies by anatomical location. Slough and/or eschar may be visible.",action:"Wound care consult. Wet-to-moist or moisture-retentive dressings. Debridement may be required. Nutritional consult.",nursing:"Undermining and tunneling must be measured and documented. Report depth in cm."},
+    {stage:"Stage 4",color:"var(--r-red)",icon:"4",desc:"Full-thickness skin and tissue loss with exposed or directly palpable fascia, muscle, tendon, ligament, cartilage, or bone. Slough and/or eschar may be present.",action:"Immediate wound care consult and physician notification. Surgical evaluation often needed. Nutritional support essential. Pressure offloading.",nursing:"Stage 4 is a reportable event in most facilities. Document pain assessment. Assess for osteomyelitis risk."},
+    {stage:"Unstageable",color:"var(--r-muted)",icon:"U",desc:"Full-thickness skin and tissue loss where the extent cannot be confirmed because it is obscured by slough or eschar. True depth unknown — could be Stage 3 or 4.",action:"Do NOT debride stable dry eschar on heels (acts as biological cover). Consult wound care for all other unstageable wounds.",nursing:"Once debrided, reassign appropriate stage. Document as 'Unstageable' until depth is determined."},
+    {stage:"Deep Tissue Injury",color:"var(--r-purple)",icon:"DTI",desc:"Intact or non-intact skin with localized area of persistent non-blanchable deep red, maroon, or purple discoloration. May present as blood-filled blister. Discoloration may appear differently in darkly pigmented skin.",action:"Pressure offloading immediately. Do NOT massage area. Frequent reassessment — may evolve rapidly to Stage 3/4.",nursing:"DTI may evolve rapidly even with optimal care. Document evolution. Often occurs over bony prominences. Cannot predict final depth."},
+    {stage:"Mucosal Membrane PI",color:"var(--r-blue)",icon:"MM",desc:"Found on mucous membranes with a history of a medical device in use at that location. Staging system does NOT apply to mucosal wounds.",action:"Remove or reposition device as tolerated. Consult wound care. Document medical device and location.",nursing:"Common locations: nares (NG/ETT), mouth (bite blocks), urethra (foley). Do not apply pressure injury stages to these wounds."},
+  ];
+  stages.forEach(function(s){
+    var card=div("r-card fadeUp","margin-bottom:10px;border-left:3px solid "+s.color+";");
+    var hdr=div("","display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;");
+    var badge=div("","width:34px;height:34px;border-radius:8px;background:"+s.color+";display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0;font-family:'DM Mono',monospace;");
+    badge.textContent=s.icon; add(hdr,badge);
+    var ti=div("","flex:1;"); ti.innerHTML='<div style="font-size:19px;font-weight:700;color:var(--r-pri);margin-bottom:4px">'+s.stage+'</div>'; add(hdr,ti); add(card,hdr);
+    var dl=div("r-label","margin-bottom:4px;"); dl.textContent="DEFINITION"; add(card,dl);
+    var dd=div("","font-size:17px;color:var(--r-sec);line-height:1.65;margin-bottom:10px;"); dd.textContent=s.desc; add(card,dd);
+    var al=div("r-label","color:rgba(13,148,136,.8);margin-bottom:4px;"); al.textContent="TREATMENT APPROACH"; add(card,al);
+    var ad=div("","font-size:17px;color:var(--r-sec);line-height:1.65;margin-bottom:8px;"); ad.textContent=s.action; add(card,ad);
+    var nl=div("r-label","color:rgba(245,158,11,.8);margin-bottom:4px;"); nl.textContent="NURSING DOCUMENTATION NOTE"; add(card,nl);
+    var nd=div("","font-size:17px;color:var(--r-sec);line-height:1.65;"); nd.textContent=s.nursing; add(card,nd);
+    add(body,card);
+  });
+  add(page,body);
+  add(page,rNav("rn-piref"));
+}
+
+// ═══════════════════════════════════════════════════════
+//  EMERGENCY PROFILE
+// ═══════════════════════════════════════════════════════
+function renderEmergency(page){
+  page.className="page emerg-page";
+  var body=div("","padding:0 0 calc(var(--sab) + 20px);");
+  // Header bar
+  var topbar=div("","background:rgba(220,38,38,.9);padding:calc(var(--sat) + 14px) 20px 14px;display:flex;align-items:center;gap:12px;");
+  topbar.innerHTML='<span style="font-size:28px">🆘</span><div style="flex:1"><div style="font-size:21px;font-weight:700;color:white;font-family:\'Playfair Display\',serif;">Emergency Medical Profile</div><div style="font-size:15px;color:rgba(255,255,255,.8);margin-top:2px">For First Responders</div></div>';
+  var closeBtn=btn("","←",back);
+  closeBtn.style.cssText="background:rgba(255,255,255,.2);border:none;color:white;width:36px;height:36px;border-radius:8px;font-size:21px;cursor:pointer;flex-shrink:0;";
+  add(topbar,closeBtn);
+  add(body,topbar);
+  var content=div("","padding:16px 20px;");
+  // Patient ID
+  var pid=div("","background:rgba(220,38,38,.2);border:1.5px solid rgba(220,38,38,.4);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;");
+  pid.innerHTML='<div style="font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:6px">Patient</div><div style="font-family:\'Playfair Display\',serif;font-size:32px;font-weight:700;color:white;margin-bottom:4px">'+S.patient.name+'</div>'+(S.patient.dob?'<div style="font-size:17px;color:rgba(255,255,255,.7)">DOB: '+S.patient.dob+'</div>':"");
+  add(content,pid);
+  // Code status — prominent
+  var code=div("","background:rgba(239,68,68,.3);border:2px solid rgba(239,68,68,.6);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center;");
+  code.innerHTML='<div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-bottom:4px">Code Status</div><div style="font-size:25px;font-weight:700;color:#FCA5A5">'+S.patient.codeStatus+'</div>';
+  add(content,code);
+  // Two col: allergies + conditions
+  var row=div("","display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;");
+  var alCard=div("","background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px;");
+  alCard.innerHTML='<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(245,158,11,.9);margin-bottom:8px">⚠️ Allergies</div>'+S.patient.allergies.map(function(a){return '<div style="font-size:17px;font-weight:600;color:white;margin-bottom:4px">'+a+'</div>';}).join("");
+  add(row,alCard);
+  var dxCard=div("","background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);border-radius:12px;padding:12px;");
+  dxCard.innerHTML='<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(59,130,246,.9);margin-bottom:8px">🏥 Conditions</div>'+S.patient.diagnoses.map(function(d){return '<div style="font-size:17px;font-weight:600;color:white;margin-bottom:4px">'+d+'</div>';}).join("");
+  add(row,dxCard);
+  add(content,row);
+  // Medications
+  var medCard=div("","background:rgba(13,148,136,.15);border:1px solid rgba(13,148,136,.3);border-radius:12px;padding:12px;margin-bottom:12px;");
+  medCard.innerHTML='<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(13,148,136,.9);margin-bottom:8px">💊 Current Medications</div>'+S.patient.medications.map(function(m){return '<div style="font-size:17px;color:rgba(255,255,255,.9);margin-bottom:5px;display:flex;gap:8px"><span style="color:rgba(13,148,136,.9);flex-shrink:0">•</span><span>'+m+'</span></div>';}).join("");
+  add(content,medCard);
+  // Emergency contacts
+  if(S.patient.emergencyContacts&&S.patient.emergencyContacts[0]&&S.patient.emergencyContacts[0].name){
+    var ecCard=div("","background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:12px;margin-bottom:12px;");
+    ecCard.innerHTML='<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(168,85,247,.9);margin-bottom:8px">📞 Emergency Contact</div>';
+    S.patient.emergencyContacts.filter(function(c){return c.name;}).forEach(function(c){
+      var row=div("","display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;");
+      row.innerHTML='<div><div style="font-size:17px;font-weight:600;color:white">'+c.name+'</div><div style="font-size:15px;color:rgba(255,255,255,.6)">'+c.relation+'</div></div>';
+      if(c.phone){
+        var callBtn=el("a",{href:"tel:"+c.phone,style:"background:rgba(168,85,247,.4);border:1px solid rgba(168,85,247,.5);border-radius:8px;padding:6px 12px;font-size:17px;font-weight:700;color:white;text-decoration:none;"},["📞 "+c.phone]);
+        add(row,callBtn);
+      }
+      add(ecCard,row);
+    });
+    add(content,ecCard);
+  }
+  // 911
+  var callRow=div("","display:grid;grid-template-columns:1fr 1fr;gap:10px;");
+  var call911=el("a",{href:"tel:911",style:"display:flex;align-items:center;justify-content:center;gap:8px;background:#DC2626;border-radius:12px;padding:14px;font-size:19px;font-weight:700;color:white;text-decoration:none;"},["🚨 Call 911"]);
+  add(callRow,call911);
+  var locBtn=btn("","Share Location",function(){
+    if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(pos){alert("Lat: "+pos.coords.latitude.toFixed(4)+"\nLng: "+pos.coords.longitude.toFixed(4));});}
+  });
+  locBtn.style.cssText="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(59,130,246,.3);border:1px solid rgba(59,130,246,.5);border-radius:12px;padding:14px;font-size:19px;font-weight:700;color:white;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;";
+  locBtn.textContent="📍 Share Location";
+  add(callRow,locBtn);
+  add(content,callRow);
+  add(body,content);
+  add(page,body);
+}
+
+// ═══════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════
+window.addEventListener("DOMContentLoaded",function(){
+  // Check today symptom
+  var today=new Date().toISOString().split("T")[0];
+  S.fSymToday=S.fSymptoms.some(function(e){return e.date===today;});
+  render();
+});
+</script>
